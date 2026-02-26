@@ -18,7 +18,7 @@ import { useWallet } from './useWallet';
 export function useIsOwner() {
   const { address, isConnected } = useWallet();
   const [isOwner, setIsOwner] = useState(false);
-  const [checking, setChecking] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   const check = useCallback(async () => {
     if (!isConnected || !address || !MULTISENDER_CONTRACT_ADDRESS) {
@@ -46,16 +46,25 @@ export function useIsOwner() {
       );
 
       const ownerRes = await contract.getOwner();
-      const ownerHex = String(ownerRes.properties.owner);
+      const ownerRaw = ownerRes.properties.owner;
+      const ownerHex =
+        typeof (ownerRaw as { toHex?: () => string }).toHex === 'function'
+          ? (ownerRaw as { toHex: () => string }).toHex()
+          : String(ownerRaw);
 
       // Resolve wallet to same hex format for comparison
       let walletHex: string;
       try {
         const walletResolved = await resolveAddress(provider, address, false);
-        walletHex = String(walletResolved);
+        walletHex =
+          typeof walletResolved.toHex === 'function'
+            ? walletResolved.toHex()
+            : String(walletResolved);
       } catch {
         walletHex = '';
       }
+
+      console.log('[useIsOwner] ownerHex:', ownerHex, 'walletHex:', walletHex);
 
       setIsOwner(
         walletHex !== '' &&

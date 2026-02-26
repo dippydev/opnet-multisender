@@ -8,11 +8,19 @@ import { registerStatsRoutes } from './routes/stats.js';
 
 const app = new HyperExpress.Server();
 const PORT = parseInt(process.env.PORT || '3001', 10);
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+// Allowed origins: comma-separated list via FRONTEND_URL env var
+const ALLOWED_ORIGINS = new Set(
+    (process.env.FRONTEND_URL || 'http://localhost:5173')
+        .split(',')
+        .map((o) => o.trim()),
+);
 
-// CORS middleware
-app.use((_req, res, next) => {
-    res.header('Access-Control-Allow-Origin', FRONTEND_URL);
+// CORS middleware — dynamically set origin from allowed list
+app.use((req, res, next) => {
+    const origin = req.header('origin') || '';
+    if (ALLOWED_ORIGINS.has(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
@@ -49,7 +57,7 @@ registerStatsRoutes(app);
 app.listen(PORT)
     .then(() => {
         console.log(`MultiSender API running on port ${PORT}`);
-        console.log(`CORS allowed origin: ${FRONTEND_URL}`);
+        console.log(`CORS allowed origins: ${[...ALLOWED_ORIGINS].join(', ')}`);
         console.log(`Health check: http://localhost:${PORT}/health`);
     })
     .catch((err: Error) => {
