@@ -16,6 +16,12 @@ const KNOWN_TOKENS: TokenMetadata[] = [
         symbol: 'WABI',
         decimals: 18,
     },
+    {
+        address: 'opt1sqp5gx9k0nrqph3sy3aeyzt673dz7ygtqxcfdqfle',
+        name: 'PILL',
+        symbol: 'PILL',
+        decimals: 18,
+    },
 ];
 
 /** Token stale threshold: 24 hours */

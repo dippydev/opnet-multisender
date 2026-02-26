@@ -42,4 +42,10 @@ export const KNOWN_TOKENS: KnownToken[] = [
     symbol: 'WABI',
     decimals: 18,
   },
+  {
+    address: 'opt1sqp5gx9k0nrqph3sy3aeyzt673dz7ygtqxcfdqfle',
+    name: 'PILL',
+    symbol: 'PILL',
+    decimals: 18,
+  },
 ];
