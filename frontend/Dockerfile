@@ -28,6 +28,7 @@ RUN npm run build
 # Stage 3: Serve with nginx
 FROM nginx:alpine AS runner
 COPY --from=build /app/dist /usr/share/nginx/html
+RUN chmod -R 644 /usr/share/nginx/html/* && find /usr/share/nginx/html -type d -exec chmod 755 {} +
 
 # SPA fallback template — PORT is substituted at runtime via envsubst
 RUN mkdir -p /etc/nginx/templates && \
