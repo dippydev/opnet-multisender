@@ -29,16 +29,18 @@ RUN npm run build
 FROM nginx:alpine AS runner
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# SPA fallback: route all paths to index.html
-RUN printf 'server {\n\
-    listen 80;\n\
+# SPA fallback template — PORT is substituted at runtime via envsubst
+RUN mkdir -p /etc/nginx/templates && \
+    printf 'server {\n\
+    listen ${PORT};\n\
     server_name _;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
     }\n\
-}\n' > /etc/nginx/conf.d/default.conf
+}\n' > /etc/nginx/templates/default.conf.template
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENV PORT=8080
+EXPOSE 8080
+CMD ["sh", "-c", "envsubst '${PORT}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
