@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Wallet, Users, Send, Zap, Shield } from 'lucide-react';
 import { useStats } from '../hooks/useStats';
-import bitsendLogo from '../assets/bitsendlogo.svg';
+import bitsendFooterLogo from '../assets/bitsendfooter.svg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -191,7 +191,7 @@ export default function Landing() {
       {/* Footer */}
       <div className="border-t border-[var(--color-border)] py-12">
         <div className="flex items-center justify-center gap-6 flex-col">
-          <img src={bitsendLogo} alt={t('app.title')} className="h-10" />
+          <img src={bitsendFooterLogo} alt={t('app.title')} className="h-10" />
           <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
             <Shield className="w-3.5 h-3.5" />
             {t('pages.landing.poweredBy')}
