@@ -1,0 +1,6 @@
+node_modules/
+build/
+# Auto-generated ABIs from opnet-transform (base classes)
+abis/OP20.*
+abis/OP20S.*
+abis/OP721.*

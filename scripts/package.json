@@ -1,0 +1,26 @@
+{
+    "name": "multisender-scripts",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "OPNet MultiSender deployment and admin scripts",
+    "scripts": {
+        "deploy": "npx tsx src/deploy.ts",
+        "deploy:bob": "npx tsx src/deploy-bob.ts",
+        "interact": "npx tsx src/interact.ts",
+        "interact:bob": "npx tsx src/interact-bob.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@btc-vision/bip32": "^7.1.2",
+        "@btc-vision/bitcoin": "^7.0.0-rc.5",
+        "@btc-vision/ecpair": "^4.0.5",
+        "@btc-vision/transaction": "^1.8.0-rc.7",
+        "dotenv": "latest",
+        "opnet": "^1.8.1-rc.9"
+    },
+    "devDependencies": {
+        "@types/node": "latest",
+        "tsx": "latest",
+        "typescript": "latest"
+    }
+}

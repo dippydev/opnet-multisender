@@ -1,0 +1,335 @@
+{
+  "app": {
+    "title": "MultiSender",
+    "description": "Batch token & BTC transfers on OPNet"
+  },
+  "nav": {
+    "home": "Home",
+    "multisender": "Send",
+    "history": "History",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "pages": {
+    "landing": {
+      "title": "MultiSender",
+      "subtitle": "Send tokens to hundreds of addresses in one click",
+      "description": "The fastest way to batch-send OP20 tokens and native BTC on Bitcoin L1 via OPNet. Airdrop to your community, distribute rewards, or pay contributors — all in one flow.",
+      "cta": "Launch App",
+      "howItWorks": "How It Works",
+      "step1Title": "Connect Wallet",
+      "step1Description": "Link your OP_WALLET to get started. Works with OPNet testnet and mainnet.",
+      "step2Title": "Enter Recipients",
+      "step2Description": "Paste addresses, upload a CSV, or enter manually. We validate everything for you.",
+      "step3Title": "Send in One Click",
+      "step3Description": "Review, approve, and send. We batch transactions automatically for optimal efficiency.",
+      "stats": "Trusted by the OPNet Community",
+      "statSends": "Total Sends",
+      "statTokens": "Tokens Distributed",
+      "statUsers": "Active Users",
+      "poweredBy": "Powered by OPNet — Bitcoin L1 Smart Contracts"
+    },
+    "multisender": {
+      "title": "MultiSender",
+      "description": "Batch-send OP20 tokens or BTC to multiple recipients"
+    },
+    "history": {
+      "title": "History",
+      "description": "View your past multisend transactions"
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Contract owner administration panel"
+    }
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "connecting": "Connecting...",
+    "disconnect": "Disconnect",
+    "testnet": "Testnet",
+    "mainnet": "Mainnet"
+  },
+  "wizard": {
+    "step1": "Connect Wallet",
+    "step2": "Select Token",
+    "step3": "Enter Recipients",
+    "step4": "Review & Confirm",
+    "step5": "Transaction Status",
+    "connectWallet": "Connect Your Wallet",
+    "connectWalletDescription": "Connect your OP_WALLET to start sending tokens or BTC.",
+    "walletConnected": "Wallet Connected",
+    "walletConnectedDescription": "Your wallet is connected. Continue to select a token.",
+    "continue": "Continue",
+    "back": "Back",
+    "send": "Send",
+    "sendMore": "Send More",
+    "recipientsPlaceholder": "Recipient entry will be available here.",
+    "reviewPlaceholder": "Review & confirm will be available here.",
+    "statusPlaceholder": "Transaction status will be shown here."
+  },
+  "recipients": {
+    "manualEntry": "Manual Entry",
+    "tabManual": "Manual",
+    "tabCSV": "CSV Upload",
+    "tabPaste": "Paste",
+    "count": "{{count}} recipient(s)",
+    "noRecipients": "No recipients added yet. Click the button below to add one.",
+    "addressLabel": "Address",
+    "amountLabel": "Amount",
+    "addressPlaceholder": "opt1p...",
+    "amountPlaceholder": "0.00",
+    "addRow": "Add Recipient",
+    "removeRow": "Remove",
+    "errors": {
+      "emptyAddress": "Address is required",
+      "invalidPrefix": "Address must start with opt1p or opt1q",
+      "tooShort": "Address is too short",
+      "invalidCharacters": "Address contains invalid characters",
+      "invalidLength": "Address length is invalid",
+      "emptyAmount": "Amount is required",
+      "invalidAmount": "Enter a valid number",
+      "nonPositiveAmount": "Amount must be greater than zero",
+      "tooManyDecimals": "Too many decimal places (max 18)"
+    }
+  },
+  "csv": {
+    "title": "Upload CSV",
+    "dragDrop": "Drag & drop a CSV file here, or click to browse",
+    "fileTypes": "Accepts .csv and .txt files",
+    "downloadTemplate": "Download Template",
+    "added": "{{count}} recipient(s) added",
+    "errorCount": "{{count}} error(s)",
+    "lineError": "Line {{line}}:",
+    "pasteTitle": "Paste Addresses",
+    "pastePlaceholder": "Paste address,amount lines here...\nopt1paddr1...,100\nopt1paddr2...,200",
+    "parseButton": "Parse & Add",
+    "validating": "Validating...",
+    "serverValidated": "Server validated",
+    "errors": {
+      "missingFields": "Missing address or amount (expected: address,amount)",
+      "invalidLine": "Invalid line format"
+    }
+  },
+  "table": {
+    "recipients": "Recipients",
+    "clearAll": "Clear All",
+    "actions": "Actions",
+    "clickToEdit": "Click to edit",
+    "duplicate": "Duplicate address",
+    "duplicatesFound": "{{count}} duplicate address(es) found",
+    "mergeDuplicates": "Merge Duplicates",
+    "totalToSend": "Total to send",
+    "yourBalance": "Your balance",
+    "insufficientBalance": "Insufficient balance to complete this send"
+  },
+  "review": {
+    "title": "Review & Confirm",
+    "token": "Token",
+    "mode": "Send Mode",
+    "modeOP20": "OP20 Token (via contract)",
+    "modeBTC": "Native BTC (direct transfer)",
+    "recipients": "Recipients",
+    "totalAmount": "Total Amount",
+    "yourBalance": "Your balance",
+    "batches": "Batches",
+    "batchesCount": "{{count}} batch(es) of up to {{max}} each",
+    "checkingAllowance": "Checking token allowance...",
+    "allowanceSufficient": "Token allowance is sufficient",
+    "approveToken": "Approve {{symbol}} for MultiSender",
+    "approving": "Approving...",
+    "approvalConfirmed": "Approval confirmed!",
+    "approvalFailed": "Approval failed. Please try again.",
+    "allowanceCheckFailed": "Failed to check allowance. Please try again.",
+    "noContractAddress": "MultiSender contract address not configured",
+    "retry": "Retry"
+  },
+  "send": {
+    "sendNow": "Send Now",
+    "sendBTC": "Send BTC",
+    "batchProgress": "Sending batch {{current}} of {{total}}...",
+    "btcProgress": "Sending to recipient {{current}} of {{total}}...",
+    "batch": "Batch {{index}}",
+    "recipient": "Recipient {{index}}",
+    "recipientCount": "{{count}} recipients",
+    "statusPending": "Pending",
+    "statusSending": "Sending...",
+    "statusConfirmed": "Confirmed",
+    "statusFailed": "Failed"
+  },
+  "status": {
+    "noResults": "No transaction results to display.",
+    "allConfirmed": "All Transactions Confirmed!",
+    "allFailed": "All Transactions Failed",
+    "partialSuccess": "Some Transactions Failed",
+    "summary": "{{confirmed}} of {{total}} confirmed, {{failed}} failed",
+    "details": "Transaction Details"
+  },
+  "airdrop": {
+    "customAmounts": "Custom Amounts",
+    "customAmountsShort": "Custom",
+    "equalSplit": "Airdrop (Equal Split)",
+    "equalSplitShort": "Airdrop",
+    "totalAmount": "Total Amount",
+    "perRecipient": "{{amount}} per recipient ({{count}} recipients)",
+    "autoCalculated": "Auto-calculated from airdrop total"
+  },
+  "percentage": {
+    "title": "Percentage Split",
+    "titleShort": "Percent",
+    "totalAmount": "Total Amount",
+    "sumLabel": "Sum",
+    "sumWarning": "Percentages must sum to exactly 100%",
+    "autoCalculated": "Auto-calculated from percentage"
+  },
+  "savedLists": {
+    "save": "Save List",
+    "load": "Load List",
+    "delete": "Delete",
+    "saveTitle": "Save Recipient List",
+    "saveDescription": "Save {{count}} recipient(s) as a named list for later use.",
+    "namePlaceholder": "Enter list name...",
+    "cancel": "Cancel",
+    "saveButton": "Save",
+    "recipientCount": "{{count}} recipient(s)",
+    "empty": "No saved lists yet"
+  },
+  "addressBook": {
+    "title": "Address Book",
+    "addEntry": "Add Address",
+    "labelPlaceholder": "Label (e.g. Alice)",
+    "addressPlaceholder": "opt1p...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "empty": "No saved addresses. Add one to get started.",
+    "selectAll": "Select all",
+    "selectedCount": "{{count}} selected",
+    "addToRecipients": "Add {{count}} to recipients",
+    "openBook": "Address Book"
+  },
+  "token": {
+    "label": "Select Token",
+    "selectToken": "Choose a token to send",
+    "native": "Native",
+    "btcDescription": "Send native Bitcoin",
+    "customAddress": "Enter custom token address",
+    "pasteAddress": "Paste OP20 token address...",
+    "go": "Go",
+    "loading": "Loading token...",
+    "balance": "Balance",
+    "invalidAddress": "Invalid token address. Please check and try again."
+  },
+  "gas": {
+    "title": "Estimated Fee",
+    "estimating": "Estimating fees...",
+    "estimatedCost": "Total estimated fee",
+    "perBatch": "Per batch",
+    "perTransaction": "Per transaction",
+    "sats": "sats",
+    "refresh": "Refresh estimate",
+    "estimationFailed": "Could not estimate fees",
+    "unavailable": "Fee estimate unavailable"
+  },
+  "allowance": {
+    "title": "Token Allowance",
+    "currentAllowance": "Current allowance for MultiSender",
+    "loading": "Loading...",
+    "noAllowance": "No allowance set for MultiSender contract",
+    "revoke": "Revoke Allowance",
+    "revoking": "Revoking...",
+    "revoked": "Allowance revoked successfully",
+    "refresh": "Refresh",
+    "fetchError": "Failed to fetch allowance",
+    "revokeError": "Failed to revoke allowance. Please try again."
+  },
+  "simulation": {
+    "title": "Dry Run",
+    "simulate": "Simulate",
+    "simulating": "Simulating...",
+    "passed": "Simulation passed — all batches will succeed",
+    "failed": "Simulation failed — transaction would revert",
+    "partialFailed": "Some batches would fail",
+    "batch": "Batch {{index}}",
+    "success": "Success",
+    "reverted": "Reverted",
+    "totalGas": "Total estimated gas"
+  },
+  "queue": {
+    "title": "Send Queue",
+    "clearAll": "Clear Queue",
+    "queueAnother": "Queue Another Token Send",
+    "statusCompleted": "Completed",
+    "statusPartial": "Partial",
+    "statusFailed": "Failed",
+    "modeOP20": "OP20",
+    "modeBTC": "BTC",
+    "entryDetail": "{{count}} recipients — {{amount}} {{symbol}}"
+  },
+  "receipt": {
+    "export": "Export Receipt",
+    "historyTitle": "Past Sends",
+    "loading": "Loading history...",
+    "noHistory": "No past sends yet. Complete a multisend to see it here.",
+    "remove": "Remove",
+    "statusCompleted": "Completed",
+    "statusPartial": "Partial",
+    "statusFailed": "Failed",
+    "entryDetail": "{{count}} recipients — {{amount}} {{symbol}}"
+  },
+  "theme": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "empty": "No data yet. Complete some sends to see analytics here.",
+    "sendsOverTime": "Sends Over Time",
+    "mostUsedTokens": "Most-Used Tokens",
+    "recipientFrequency": "Recipients by Token",
+    "sends": "Sends",
+    "recipients": "Recipients"
+  },
+  "qr": {
+    "scanButton": "Scan QR",
+    "title": "Scan QR Code",
+    "instruction": "Point your camera at a QR code containing a Bitcoin/OPNet address.",
+    "scanned": "Address scanned successfully!",
+    "done": "Done",
+    "close": "Close",
+    "permissionDenied": "Camera permission was denied. Please allow camera access in your browser settings.",
+    "noCamera": "No camera found on this device.",
+    "startError": "Could not start the camera. Please try again."
+  },
+  "common": {
+    "copyAddress": "Copy address"
+  },
+  "language": {
+    "switchLanguage": "Switch language"
+  },
+  "scheduled": {
+    "title": "Scheduled Sends",
+    "create": "Plan a Send",
+    "cancel": "Cancel",
+    "save": "Save",
+    "empty": "No planned sends yet. Create one to remind yourself of upcoming distributions.",
+    "tokenLabel": "Token",
+    "tokenPlaceholder": "e.g. MOTO, BTC",
+    "dateLabel": "Planned Date",
+    "recipientCountLabel": "Recipients",
+    "totalAmountLabel": "Total Amount",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "e.g. Monthly airdrop",
+    "detail": "{{count}} recipients — {{amount}} {{symbol}}",
+    "overdue": "Overdue!"
+  },
+  "toast": {
+    "sendSuccess": "All transactions confirmed successfully!",
+    "sendAllFailed": "All transactions failed. Please check your settings and try again.",
+    "sendPartial": "{{confirmed}} confirmed, {{failed}} failed. Check details below.",
+    "sendError": "Send failed: {{error}}",
+    "walletDisconnected": "Wallet disconnected. Please reconnect to continue.",
+    "approvalSuccess": "Token approval confirmed!",
+    "approvalFailed": "Token approval failed. Please try again."
+  }
+}

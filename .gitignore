@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.wasm
+*.wat
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Ralph loop files (development only)
+PLAN.md
+pdr.txt
+prd.json
+progress.txt
+AGENTS.md
+.ralph/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# TypeScript build info
+*.tsbuildinfo

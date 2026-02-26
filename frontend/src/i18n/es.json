@@ -1,0 +1,335 @@
+{
+  "app": {
+    "title": "MultiSender",
+    "description": "Transferencias por lotes de tokens y BTC en OPNet"
+  },
+  "nav": {
+    "home": "Inicio",
+    "multisender": "Enviar",
+    "history": "Historial",
+    "admin": "Admin",
+    "menu": "Menú"
+  },
+  "pages": {
+    "landing": {
+      "title": "MultiSender",
+      "subtitle": "Enviar tokens a cientos de direcciones en un solo clic",
+      "description": "La forma más rápida de enviar tokens OP20 y BTC nativo en Bitcoin L1 a través de OPNet. Haz airdrops a tu comunidad, distribuye recompensas o paga colaboradores — todo en un solo flujo.",
+      "cta": "Iniciar App",
+      "howItWorks": "Cómo Funciona",
+      "step1Title": "Conectar Billetera",
+      "step1Description": "Vincula tu OP_WALLET para comenzar. Funciona con OPNet testnet y mainnet.",
+      "step2Title": "Ingresar Destinatarios",
+      "step2Description": "Pega direcciones, sube un CSV o ingresa manualmente. Validamos todo por ti.",
+      "step3Title": "Enviar en Un Clic",
+      "step3Description": "Revisa, aprueba y envía. Agrupamos transacciones automáticamente para mayor eficiencia.",
+      "stats": "Confiado por la Comunidad OPNet",
+      "statSends": "Envíos Totales",
+      "statTokens": "Tokens Distribuidos",
+      "statUsers": "Usuarios Activos",
+      "poweredBy": "Impulsado por OPNet — Contratos Inteligentes en Bitcoin L1"
+    },
+    "multisender": {
+      "title": "MultiSender",
+      "description": "Enviar tokens OP20 o BTC a varios destinatarios"
+    },
+    "history": {
+      "title": "Historial",
+      "description": "Ver tus transacciones pasadas de multisend"
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Panel de administración del contrato"
+    }
+  },
+  "wallet": {
+    "connect": "Conectar Billetera",
+    "connecting": "Conectando...",
+    "disconnect": "Desconectar",
+    "testnet": "Testnet",
+    "mainnet": "Mainnet"
+  },
+  "wizard": {
+    "step1": "Conectar Billetera",
+    "step2": "Seleccionar Token",
+    "step3": "Ingresar Destinatarios",
+    "step4": "Revisar y Confirmar",
+    "step5": "Estado de Transacción",
+    "connectWallet": "Conecta Tu Billetera",
+    "connectWalletDescription": "Conecta tu OP_WALLET para comenzar a enviar tokens o BTC.",
+    "walletConnected": "Billetera Conectada",
+    "walletConnectedDescription": "Tu billetera está conectada. Continúa para seleccionar un token.",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "send": "Enviar",
+    "sendMore": "Enviar Más",
+    "recipientsPlaceholder": "La entrada de destinatarios estará disponible aquí.",
+    "reviewPlaceholder": "Revisar y confirmar estará disponible aquí.",
+    "statusPlaceholder": "El estado de la transacción se mostrará aquí."
+  },
+  "recipients": {
+    "manualEntry": "Entrada Manual",
+    "tabManual": "Manual",
+    "tabCSV": "Subir CSV",
+    "tabPaste": "Pegar",
+    "count": "{{count}} destinatario(s)",
+    "noRecipients": "No se han agregado destinatarios. Haz clic en el botón para agregar uno.",
+    "addressLabel": "Dirección",
+    "amountLabel": "Cantidad",
+    "addressPlaceholder": "opt1p...",
+    "amountPlaceholder": "0.00",
+    "addRow": "Agregar Destinatario",
+    "removeRow": "Eliminar",
+    "errors": {
+      "emptyAddress": "La dirección es obligatoria",
+      "invalidPrefix": "La dirección debe comenzar con opt1p o opt1q",
+      "tooShort": "La dirección es muy corta",
+      "invalidCharacters": "La dirección contiene caracteres inválidos",
+      "invalidLength": "La longitud de la dirección es inválida",
+      "emptyAmount": "La cantidad es obligatoria",
+      "invalidAmount": "Ingresa un número válido",
+      "nonPositiveAmount": "La cantidad debe ser mayor a cero",
+      "tooManyDecimals": "Demasiados decimales (máximo 18)"
+    }
+  },
+  "csv": {
+    "title": "Subir CSV",
+    "dragDrop": "Arrastra y suelta un archivo CSV aquí, o haz clic para buscar",
+    "fileTypes": "Acepta archivos .csv y .txt",
+    "downloadTemplate": "Descargar Plantilla",
+    "added": "{{count}} destinatario(s) agregado(s)",
+    "errorCount": "{{count}} error(es)",
+    "lineError": "Línea {{line}}:",
+    "pasteTitle": "Pegar Direcciones",
+    "pastePlaceholder": "Pega líneas dirección,cantidad aquí...\nopt1paddr1...,100\nopt1paddr2...,200",
+    "parseButton": "Analizar y Agregar",
+    "validating": "Validando...",
+    "serverValidated": "Validado por servidor",
+    "errors": {
+      "missingFields": "Falta dirección o cantidad (formato: dirección,cantidad)",
+      "invalidLine": "Formato de línea inválido"
+    }
+  },
+  "table": {
+    "recipients": "Destinatarios",
+    "clearAll": "Limpiar Todo",
+    "actions": "Acciones",
+    "clickToEdit": "Clic para editar",
+    "duplicate": "Dirección duplicada",
+    "duplicatesFound": "{{count}} dirección(es) duplicada(s) encontrada(s)",
+    "mergeDuplicates": "Fusionar Duplicados",
+    "totalToSend": "Total a enviar",
+    "yourBalance": "Tu saldo",
+    "insufficientBalance": "Saldo insuficiente para completar este envío"
+  },
+  "review": {
+    "title": "Revisar y Confirmar",
+    "token": "Token",
+    "mode": "Modo de Envio",
+    "modeOP20": "Token OP20 (via contrato)",
+    "modeBTC": "BTC Nativo (transferencia directa)",
+    "recipients": "Destinatarios",
+    "totalAmount": "Monto Total",
+    "yourBalance": "Tu saldo",
+    "batches": "Lotes",
+    "batchesCount": "{{count}} lote(s) de hasta {{max}} cada uno",
+    "checkingAllowance": "Verificando permisos del token...",
+    "allowanceSufficient": "Los permisos del token son suficientes",
+    "approveToken": "Aprobar {{symbol}} para MultiSender",
+    "approving": "Aprobando...",
+    "approvalConfirmed": "Aprobacion confirmada!",
+    "approvalFailed": "La aprobacion fallo. Intentalo de nuevo.",
+    "allowanceCheckFailed": "No se pudo verificar los permisos. Intentalo de nuevo.",
+    "noContractAddress": "Direccion del contrato MultiSender no configurada",
+    "retry": "Reintentar"
+  },
+  "send": {
+    "sendNow": "Enviar Ahora",
+    "sendBTC": "Enviar BTC",
+    "batchProgress": "Enviando lote {{current}} de {{total}}...",
+    "btcProgress": "Enviando a destinatario {{current}} de {{total}}...",
+    "batch": "Lote {{index}}",
+    "recipient": "Destinatario {{index}}",
+    "recipientCount": "{{count}} destinatarios",
+    "statusPending": "Pendiente",
+    "statusSending": "Enviando...",
+    "statusConfirmed": "Confirmado",
+    "statusFailed": "Fallido"
+  },
+  "status": {
+    "noResults": "No hay resultados de transacción para mostrar.",
+    "allConfirmed": "¡Todas las Transacciones Confirmadas!",
+    "allFailed": "Todas las Transacciones Fallaron",
+    "partialSuccess": "Algunas Transacciones Fallaron",
+    "summary": "{{confirmed}} de {{total}} confirmadas, {{failed}} fallidas",
+    "details": "Detalles de Transacción"
+  },
+  "airdrop": {
+    "customAmounts": "Cantidades Personalizadas",
+    "customAmountsShort": "Custom",
+    "equalSplit": "Airdrop (División Igual)",
+    "equalSplitShort": "Airdrop",
+    "totalAmount": "Cantidad Total",
+    "perRecipient": "{{amount}} por destinatario ({{count}} destinatarios)",
+    "autoCalculated": "Calculado automáticamente del total del airdrop"
+  },
+  "percentage": {
+    "title": "División Porcentual",
+    "titleShort": "Porcentaje",
+    "totalAmount": "Cantidad Total",
+    "sumLabel": "Suma",
+    "sumWarning": "Los porcentajes deben sumar exactamente 100%",
+    "autoCalculated": "Calculado automáticamente del porcentaje"
+  },
+  "savedLists": {
+    "save": "Guardar Lista",
+    "load": "Cargar Lista",
+    "delete": "Eliminar",
+    "saveTitle": "Guardar Lista de Destinatarios",
+    "saveDescription": "Guardar {{count}} destinatario(s) como lista con nombre para uso posterior.",
+    "namePlaceholder": "Nombre de la lista...",
+    "cancel": "Cancelar",
+    "saveButton": "Guardar",
+    "recipientCount": "{{count}} destinatario(s)",
+    "empty": "No hay listas guardadas"
+  },
+  "addressBook": {
+    "title": "Libreta de Direcciones",
+    "addEntry": "Agregar Dirección",
+    "labelPlaceholder": "Etiqueta (ej. Alice)",
+    "addressPlaceholder": "opt1p...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "empty": "No hay direcciones guardadas. Agrega una para comenzar.",
+    "selectAll": "Seleccionar todo",
+    "selectedCount": "{{count}} seleccionado(s)",
+    "addToRecipients": "Agregar {{count}} a destinatarios",
+    "openBook": "Libreta de Direcciones"
+  },
+  "token": {
+    "label": "Seleccionar Token",
+    "selectToken": "Elige un token para enviar",
+    "native": "Nativo",
+    "btcDescription": "Enviar Bitcoin nativo",
+    "customAddress": "Ingresar dirección de token",
+    "pasteAddress": "Pegar dirección de token OP20...",
+    "go": "Ir",
+    "loading": "Cargando token...",
+    "balance": "Saldo",
+    "invalidAddress": "Dirección de token inválida. Verifica e intenta de nuevo."
+  },
+  "gas": {
+    "title": "Tarifa Estimada",
+    "estimating": "Estimando tarifas...",
+    "estimatedCost": "Tarifa total estimada",
+    "perBatch": "Por lote",
+    "perTransaction": "Por transacción",
+    "sats": "sats",
+    "refresh": "Actualizar estimación",
+    "estimationFailed": "No se pudieron estimar las tarifas",
+    "unavailable": "Estimación de tarifa no disponible"
+  },
+  "allowance": {
+    "title": "Permiso del Token",
+    "currentAllowance": "Permiso actual para MultiSender",
+    "loading": "Cargando...",
+    "noAllowance": "No hay permiso configurado para el contrato MultiSender",
+    "revoke": "Revocar Permiso",
+    "revoking": "Revocando...",
+    "revoked": "Permiso revocado exitosamente",
+    "refresh": "Actualizar",
+    "fetchError": "Error al obtener el permiso",
+    "revokeError": "Error al revocar el permiso. Inténtalo de nuevo."
+  },
+  "simulation": {
+    "title": "Prueba en Seco",
+    "simulate": "Simular",
+    "simulating": "Simulando...",
+    "passed": "Simulación exitosa — todos los lotes se ejecutarán correctamente",
+    "failed": "Simulación fallida — la transacción sería revertida",
+    "partialFailed": "Algunos lotes fallarían",
+    "batch": "Lote {{index}}",
+    "success": "Exitoso",
+    "reverted": "Revertido",
+    "totalGas": "Gas total estimado"
+  },
+  "queue": {
+    "title": "Cola de Envíos",
+    "clearAll": "Limpiar Cola",
+    "queueAnother": "Agregar Otro Envío de Token",
+    "statusCompleted": "Completado",
+    "statusPartial": "Parcial",
+    "statusFailed": "Fallido",
+    "modeOP20": "OP20",
+    "modeBTC": "BTC",
+    "entryDetail": "{{count}} destinatarios — {{amount}} {{symbol}}"
+  },
+  "receipt": {
+    "export": "Exportar Recibo",
+    "historyTitle": "Envíos Anteriores",
+    "loading": "Cargando historial...",
+    "noHistory": "No hay envíos anteriores. Completa un multisend para verlo aquí.",
+    "remove": "Eliminar",
+    "statusCompleted": "Completado",
+    "statusPartial": "Parcial",
+    "statusFailed": "Fallido",
+    "entryDetail": "{{count}} destinatarios — {{amount}} {{symbol}}"
+  },
+  "theme": {
+    "switchToLight": "Cambiar a modo claro",
+    "switchToDark": "Cambiar a modo oscuro"
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "empty": "Sin datos aún. Completa algunos envíos para ver analíticas aquí.",
+    "sendsOverTime": "Envíos a lo Largo del Tiempo",
+    "mostUsedTokens": "Tokens Más Usados",
+    "recipientFrequency": "Destinatarios por Token",
+    "sends": "Envíos",
+    "recipients": "Destinatarios"
+  },
+  "qr": {
+    "scanButton": "Escanear QR",
+    "title": "Escanear Código QR",
+    "instruction": "Apunta tu cámara a un código QR que contenga una dirección Bitcoin/OPNet.",
+    "scanned": "¡Dirección escaneada exitosamente!",
+    "done": "Listo",
+    "close": "Cerrar",
+    "permissionDenied": "Se denegó el permiso de la cámara. Permite el acceso a la cámara en la configuración de tu navegador.",
+    "noCamera": "No se encontró cámara en este dispositivo.",
+    "startError": "No se pudo iniciar la cámara. Inténtalo de nuevo."
+  },
+  "common": {
+    "copyAddress": "Copiar dirección"
+  },
+  "language": {
+    "switchLanguage": "Cambiar idioma"
+  },
+  "scheduled": {
+    "title": "Envíos Programados",
+    "create": "Planificar Envío",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "empty": "No hay envíos planificados. Crea uno para recordarte de distribuciones futuras.",
+    "tokenLabel": "Token",
+    "tokenPlaceholder": "ej. MOTO, BTC",
+    "dateLabel": "Fecha Planificada",
+    "recipientCountLabel": "Destinatarios",
+    "totalAmountLabel": "Monto Total",
+    "noteLabel": "Nota (opcional)",
+    "notePlaceholder": "ej. Airdrop mensual",
+    "detail": "{{count}} destinatarios — {{amount}} {{symbol}}",
+    "overdue": "¡Vencido!"
+  },
+  "toast": {
+    "sendSuccess": "¡Todas las transacciones confirmadas exitosamente!",
+    "sendAllFailed": "Todas las transacciones fallaron. Verifica tu configuración e inténtalo de nuevo.",
+    "sendPartial": "{{confirmed}} confirmadas, {{failed}} fallidas. Revisa los detalles abajo.",
+    "sendError": "Envío fallido: {{error}}",
+    "walletDisconnected": "Billetera desconectada. Reconecta para continuar.",
+    "approvalSuccess": "¡Aprobación del token confirmada!",
+    "approvalFailed": "La aprobación del token falló. Inténtalo de nuevo."
+  }
+}

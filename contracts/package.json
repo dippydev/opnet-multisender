@@ -1,0 +1,19 @@
+{
+    "name": "multisender-contract",
+    "version": "1.0.0",
+    "description": "MultiSender - OP20 batch transfer contract for OPNet",
+    "type": "module",
+    "scripts": {
+        "build": "asc src/multisender/index.ts --config asconfig.json --target multisender --use abort=src/multisender/index/abort",
+        "build:bob": "asc src/multisender/index-bob.ts --config asconfig.json --target bob-multisender --use abort=src/multisender/index-bob/abort",
+        "clean": "rm -rf build/*"
+    },
+    "dependencies": {
+        "@btc-vision/as-bignum": "^0.1.2",
+        "@btc-vision/btc-runtime": "rc"
+    },
+    "devDependencies": {
+        "@btc-vision/assemblyscript": "^0.29.2",
+        "@btc-vision/opnet-transform": "^1.2.0"
+    }
+}

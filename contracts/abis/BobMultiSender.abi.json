@@ -1,0 +1,154 @@
+{
+    "functions": [
+        {
+            "name": "transferOwnership",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newOwner",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "pause",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setFee",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "feeBps",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setTreasury",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newTreasury",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "multiSend",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "token",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "recipients",
+                    "type": "ARRAY_OF_ADDRESSES"
+                },
+                {
+                    "name": "amounts",
+                    "type": "ARRAY_OF_UINT256"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "multiSendEqual",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "token",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "recipients",
+                    "type": "ARRAY_OF_ADDRESSES"
+                },
+                {
+                    "name": "amountEach",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getOwner",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "owner",
+                    "type": "ADDRESS"
+                }
+            ]
+        },
+        {
+            "name": "getFee",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "feeBps",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "isPaused",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "paused",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "getTreasury",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "treasury",
+                    "type": "ADDRESS"
+                }
+            ]
+        }
+    ],
+    "events": []
+}
