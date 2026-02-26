@@ -7,6 +7,7 @@ import { NetworkBadge } from './NetworkBadge';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSelector } from './LanguageSelector';
 import { useIsOwner } from '../../hooks/useIsOwner';
+import bitsendLogo from '../../assets/bitsendlogo.svg';
 
 const baseNavItems = [
   { to: '/', labelKey: 'nav.home' },
@@ -64,9 +65,9 @@ export function Header() {
               )}
             </button>
 
-            <span className="text-lg font-bold tracking-tighter uppercase text-[var(--color-accent)]">
-              {t('app.title')}
-            </span>
+            <NavLink to="/" className="flex items-center">
+              <img src={bitsendLogo} alt={t('app.title')} className="h-8" />
+            </NavLink>
             <nav className="hidden sm:flex items-center gap-8">
               {navItems.map((item) => (
                 <NavLink
