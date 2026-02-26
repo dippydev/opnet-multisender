@@ -30,6 +30,21 @@ export type Unpause = CallResult<{}, OPNetEvent<never>[]>;
 export type SetFee = CallResult<{}, OPNetEvent<never>[]>;
 
 /**
+ * @description Represents the result of the setGateEnabled function call.
+ */
+export type SetGateEnabled = CallResult<{}, OPNetEvent<never>[]>;
+
+/**
+ * @description Represents the result of the setGateToken function call.
+ */
+export type SetGateToken = CallResult<{}, OPNetEvent<never>[]>;
+
+/**
+ * @description Represents the result of the setGateAmount function call.
+ */
+export type SetGateAmount = CallResult<{}, OPNetEvent<never>[]>;
+
+/**
  * @description Represents the result of the multiSend function call.
  */
 export type MultiSend = CallResult<{}, OPNetEvent<never>[]>;
@@ -69,6 +84,36 @@ export type IsPaused = CallResult<
     OPNetEvent<never>[]
 >;
 
+/**
+ * @description Represents the result of the isGateEnabled function call.
+ */
+export type IsGateEnabled = CallResult<
+    {
+        enabled: boolean;
+    },
+    OPNetEvent<never>[]
+>;
+
+/**
+ * @description Represents the result of the getGateToken function call.
+ */
+export type GetGateToken = CallResult<
+    {
+        token: Address;
+    },
+    OPNetEvent<never>[]
+>;
+
+/**
+ * @description Represents the result of the getGateAmount function call.
+ */
+export type GetGateAmount = CallResult<
+    {
+        amount: bigint;
+    },
+    OPNetEvent<never>[]
+>;
+
 // ------------------------------------------------------------------
 // IMultiSender
 // ------------------------------------------------------------------
@@ -77,9 +122,15 @@ export interface IMultiSender extends IOP_NETContract {
     pause(): Promise<Pause>;
     unpause(): Promise<Unpause>;
     setFee(fee: bigint): Promise<SetFee>;
+    setGateEnabled(enabled: boolean): Promise<SetGateEnabled>;
+    setGateToken(token: Address): Promise<SetGateToken>;
+    setGateAmount(amount: bigint): Promise<SetGateAmount>;
     multiSend(token: Address, recipients: Address[], amounts: bigint[]): Promise<MultiSend>;
     multiSendEqual(token: Address, recipients: Address[], amountEach: bigint): Promise<MultiSendEqual>;
     getOwner(): Promise<GetOwner>;
     getFee(): Promise<GetFee>;
     isPaused(): Promise<IsPaused>;
+    isGateEnabled(): Promise<IsGateEnabled>;
+    getGateToken(): Promise<GetGateToken>;
+    getGateAmount(): Promise<GetGateAmount>;
 }

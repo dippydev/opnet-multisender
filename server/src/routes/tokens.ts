@@ -110,4 +110,46 @@ export function registerTokenRoutes(app: HyperExpress.Server): void {
             res.status(500).json({ error: 'Failed to fetch tokens' });
         }
     });
+
+    // POST /api/tokens — register a new token by address
+    app.post('/api/tokens', async (req, res) => {
+        try {
+            const body = (await req.json()) as Record<string, unknown>;
+            const address = typeof body.address === 'string' ? body.address.trim() : '';
+
+            if (!address || !address.startsWith('opt1')) {
+                res.status(400).json({ error: 'Invalid token address' });
+                return;
+            }
+
+            // Check if already registered
+            const db = getDb();
+            const existing = db
+                .prepare('SELECT address, name, symbol, decimals FROM tokens WHERE address = ?')
+                .get(address) as { address: string; name: string; symbol: string; decimals: number } | undefined;
+
+            if (existing) {
+                res.json({ token: existing, created: false });
+                return;
+            }
+
+            // Fetch metadata from chain
+            const metadata = await fetchTokenMetadata(address);
+            if (!metadata) {
+                res.status(404).json({ error: 'Token not found on-chain or not a valid OP20 contract' });
+                return;
+            }
+
+            // Insert into DB
+            db.prepare(
+                `INSERT INTO tokens (address, name, symbol, decimals, updated_at)
+                 VALUES (?, ?, ?, ?, datetime('now'))`,
+            ).run(metadata.address, metadata.name, metadata.symbol, metadata.decimals);
+
+            res.status(201).json({ token: metadata, created: true });
+        } catch (err) {
+            console.error('POST /api/tokens error:', err);
+            res.status(500).json({ error: 'Failed to register token' });
+        }
+    });
 }

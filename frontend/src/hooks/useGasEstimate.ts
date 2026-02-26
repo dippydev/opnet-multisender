@@ -1,20 +1,8 @@
 import { useState, useCallback } from 'react';
-import { useRecipientStore, type Recipient } from '../store/recipientStore';
+import { useRecipientStore } from '../store/recipientStore';
 import { useWallet } from './useWallet';
-import {
-  MULTISENDER_CONTRACT_ADDRESS,
-  MAX_RECIPIENTS_PER_BATCH,
-} from '../config/constants';
-import {
-  createProvider,
-  resolveAddress,
-  getTypedContract,
-  parseAmountToBigInt,
-} from '../lib/opnet';
-import {
-  MultiSenderAbi,
-  type IMultiSender,
-} from '../config/multisender-abi';
+import { MAX_RECIPIENTS_PER_BATCH } from '../config/constants';
+import { createProvider } from '../lib/opnet';
 
 export interface GasEstimate {
   totalSats: number;
@@ -24,16 +12,14 @@ export interface GasEstimate {
   error: string | null;
 }
 
-/** Average P2TR transaction size: 1 input + 2 outputs (payment + change) */
+/**
+ * Estimated vbytes for a P2TR transaction.
+ * 1 input + 2 outputs (payment + change) ≈ 154 vB.
+ * OP20 contract calls are larger due to calldata; use ~350 vB as a
+ * conservative estimate for a multiSend batch.
+ */
 const BTC_TX_VBYTES = 154;
-/** Default fee rate in sat/vB (conservative for testnet) */
-const DEFAULT_FEE_RATE = 1;
-
-function allAmountsEqual(batch: Recipient[]): boolean {
-  if (batch.length === 0) return true;
-  const first = batch[0]!.amount;
-  return batch.every((r) => r.amount === first);
-}
+const OP20_TX_VBYTES = 350;
 
 export function useGasEstimate() {
   const { address } = useWallet();
@@ -62,9 +48,19 @@ export function useGasEstimate() {
     setEstimate((s) => ({ ...s, estimating: true, error: null }));
 
     try {
+      // Fetch current fee rate from RPC gas parameters
+      const provider = createProvider();
+      let feeRate = 2; // default medium sat/vB
+      try {
+        const gas = await provider.gasParameters();
+        feeRate = Math.ceil(gas.bitcoin.recommended.medium);
+      } catch {
+        // Use default fee rate
+      }
+
       if (sendMode === 'btc') {
-        // BTC mode: feeRate * estimated vbytes * recipient count
-        const costPerTx = BTC_TX_VBYTES * DEFAULT_FEE_RATE;
+        // BTC mode: one P2TR transaction per recipient
+        const costPerTx = BTC_TX_VBYTES * feeRate;
         const totalSats = costPerTx * recipients.length;
         setEstimate({
           totalSats,
@@ -74,94 +70,13 @@ export function useGasEstimate() {
           error: null,
         });
       } else {
-        // OP20 mode: simulate first batch to estimate gas per batch
-        if (!MULTISENDER_CONTRACT_ADDRESS) {
-          setEstimate({
-            totalSats: 0,
-            perBatchSats: 0,
-            batchCount: 0,
-            estimating: false,
-            error: 'No contract address configured',
-          });
-          return;
-        }
-
+        // OP20 mode: one contract call per batch of up to 100 recipients.
+        // We can't simulate before allowance is set, so use a static
+        // estimate based on fee rate and estimated tx size.
         const batchCount = Math.ceil(
           recipients.length / MAX_RECIPIENTS_PER_BATCH,
         );
-        const firstBatch = recipients.slice(0, MAX_RECIPIENTS_PER_BATCH);
-
-        const provider = createProvider();
-        const contractAddr = await resolveAddress(
-          provider,
-          MULTISENDER_CONTRACT_ADDRESS,
-          true,
-        );
-        const senderAddr = await resolveAddress(provider, address, false);
-        const tokenAddr = await resolveAddress(
-          provider,
-          selectedToken.address!,
-          true,
-        );
-
-        const contract = getTypedContract<IMultiSender>(
-          contractAddr,
-          MultiSenderAbi,
-          provider,
-          senderAddr,
-        );
-
-        // Resolve recipient addresses for simulation
-        const recipientAddrs = await Promise.all(
-          firstBatch.map((r) => resolveAddress(provider, r.address, false)),
-        );
-
-        let simulation;
-        if (allAmountsEqual(firstBatch)) {
-          const amountEach = parseAmountToBigInt(
-            firstBatch[0]!.amount,
-            selectedToken.decimals,
-          );
-          simulation = await contract.multiSendEqual(
-            tokenAddr,
-            recipientAddrs,
-            amountEach,
-          );
-        } else {
-          const amounts = firstBatch.map((r) =>
-            parseAmountToBigInt(r.amount, selectedToken.decimals),
-          );
-          simulation = await contract.multiSend(
-            tokenAddr,
-            recipientAddrs,
-            amounts,
-          );
-        }
-
-        if (simulation.revert) {
-          setEstimate({
-            totalSats: 0,
-            perBatchSats: 0,
-            batchCount,
-            estimating: false,
-            error: simulation.revert,
-          });
-          return;
-        }
-
-        // Extract gas estimate from simulation result
-        const result = simulation as unknown as Record<string, unknown>;
-        let perBatchSats = 0;
-        if (typeof result.gasUsed === 'bigint') {
-          perBatchSats = Number(result.gasUsed);
-        } else if (typeof result.gasUsed === 'number') {
-          perBatchSats = result.gasUsed;
-        } else if (typeof result.estimatedCost === 'bigint') {
-          perBatchSats = Number(result.estimatedCost);
-        } else if (typeof result.estimatedCost === 'number') {
-          perBatchSats = result.estimatedCost;
-        }
-
+        const perBatchSats = OP20_TX_VBYTES * feeRate;
         const totalSats = perBatchSats * batchCount;
 
         setEstimate({

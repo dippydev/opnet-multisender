@@ -35,19 +35,23 @@ export default function BalanceDisplay({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
-        <div className="h-4 w-24 animate-pulse rounded bg-[var(--color-border)]" />
+      <div className="flex items-center gap-2">
+        <div className="h-4 w-24 animate-pulse bg-[var(--color-border)]" />
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-secondary)]">
-      <span>{t('token.balance')}:</span>
-      <span className="font-mono font-medium text-[var(--color-text-primary)]">
+    <div className="flex items-center gap-3">
+      <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
+        {t('token.balance')}
+      </span>
+      <span className="font-mono text-sm font-bold text-[var(--color-text-primary)]">
         {formatBalance(balance, decimals)}
       </span>
-      <span className="text-[var(--color-text-muted)]">{symbol}</span>
+      <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
+        {symbol}
+      </span>
     </div>
   );
 }

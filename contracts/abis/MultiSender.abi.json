@@ -43,6 +43,45 @@
             "outputs": []
         },
         {
+            "name": "setGateEnabled",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "enabled",
+                    "type": "BOOL"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setGateToken",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "token",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setGateAmount",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "amount",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "multiSend",
             "type": "Function",
             "payable": false,
@@ -120,6 +159,45 @@
                 {
                     "name": "paused",
                     "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "isGateEnabled",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "enabled",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "getGateToken",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "token",
+                    "type": "ADDRESS"
+                }
+            ]
+        },
+        {
+            "name": "getGateAmount",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "amount",
+                    "type": "UINT256"
                 }
             ]
         }

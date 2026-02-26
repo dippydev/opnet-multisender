@@ -20,7 +20,7 @@ export default function App() {
           },
         }}
       />
-      <main className="pt-16">
+      <main>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/app" element={<MultiSender />} />

@@ -46,6 +46,21 @@ const MultiSenderEvents: BitcoinInterfaceAbi = [
     values: [],
     type: BitcoinAbiTypes.Event,
   },
+  {
+    name: 'GateEnabledUpdated',
+    values: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+    type: BitcoinAbiTypes.Event,
+  },
+  {
+    name: 'GateTokenUpdated',
+    values: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+    type: BitcoinAbiTypes.Event,
+  },
+  {
+    name: 'GateAmountUpdated',
+    values: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+    type: BitcoinAbiTypes.Event,
+  },
 ];
 
 export const MultiSenderAbi: BitcoinInterfaceAbi = [
@@ -111,6 +126,42 @@ export const MultiSenderAbi: BitcoinInterfaceAbi = [
     outputs: [],
     type: BitcoinAbiTypes.Function,
   },
+  {
+    name: 'setGateEnabled',
+    inputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+    outputs: [],
+    type: BitcoinAbiTypes.Function,
+  },
+  {
+    name: 'setGateToken',
+    inputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+    outputs: [],
+    type: BitcoinAbiTypes.Function,
+  },
+  {
+    name: 'setGateAmount',
+    inputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+    outputs: [],
+    type: BitcoinAbiTypes.Function,
+  },
+  {
+    name: 'isGateEnabled',
+    inputs: [],
+    outputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+    type: BitcoinAbiTypes.Function,
+  },
+  {
+    name: 'getGateToken',
+    inputs: [],
+    outputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+    type: BitcoinAbiTypes.Function,
+  },
+  {
+    name: 'getGateAmount',
+    inputs: [],
+    outputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+    type: BitcoinAbiTypes.Function,
+  },
   ...MultiSenderEvents,
   ...OP_NET_ABI,
 ];
@@ -121,6 +172,25 @@ export const MultiSenderAbi: BitcoinInterfaceAbi = [
 
 export type MultiSend = CallResult;
 export type MultiSendEqual = CallResult;
+
+export interface GetFeeResult extends CallResult {
+  properties: CallResult['properties'] & { fee: bigint };
+}
+export interface GetOwnerResult extends CallResult {
+  properties: CallResult['properties'] & { owner: Address };
+}
+export interface IsPausedResult extends CallResult {
+  properties: CallResult['properties'] & { paused: boolean };
+}
+export interface IsGateEnabledResult extends CallResult {
+  properties: CallResult['properties'] & { enabled: boolean };
+}
+export interface GetGateTokenResult extends CallResult {
+  properties: CallResult['properties'] & { token: Address };
+}
+export interface GetGateAmountResult extends CallResult {
+  properties: CallResult['properties'] & { amount: bigint };
+}
 
 export interface IMultiSender extends IOP_NETContract {
   multiSend(
@@ -133,4 +203,17 @@ export interface IMultiSender extends IOP_NETContract {
     recipients: Address[],
     amountEach: bigint,
   ): Promise<MultiSendEqual>;
+  getFee(): Promise<GetFeeResult>;
+  getOwner(): Promise<GetOwnerResult>;
+  isPaused(): Promise<IsPausedResult>;
+  setFee(fee: bigint): Promise<CallResult>;
+  pause(): Promise<CallResult>;
+  unpause(): Promise<CallResult>;
+  transferOwnership(newOwner: Address): Promise<CallResult>;
+  setGateEnabled(enabled: boolean): Promise<CallResult>;
+  setGateToken(token: Address): Promise<CallResult>;
+  setGateAmount(amount: bigint): Promise<CallResult>;
+  isGateEnabled(): Promise<IsGateEnabledResult>;
+  getGateToken(): Promise<GetGateTokenResult>;
+  getGateAmount(): Promise<GetGateAmountResult>;
 }

@@ -6,9 +6,11 @@ import {
     BytesWriter,
     Calldata,
     EMPTY_POINTER,
+    encodeSelector,
     ReentrancyGuard,
     Revert,
     SafeMath,
+    SELECTOR_BYTE_LENGTH,
     StoredAddress,
     StoredU256,
     TransferHelper,
@@ -17,6 +19,9 @@ import {
 
 import {
     FeeUpdatedEvent,
+    GateAmountUpdatedEvent,
+    GateEnabledUpdatedEvent,
+    GateTokenUpdatedEvent,
     MultiSendExecutedEvent,
     OwnershipTransferredEvent,
     PausedEvent,
@@ -28,6 +33,9 @@ const ownerPointer: u16 = Blockchain.nextPointer;
 const feePointer: u16 = Blockchain.nextPointer;
 const pausedPointer: u16 = Blockchain.nextPointer;
 const treasuryPointer: u16 = Blockchain.nextPointer;
+const gateEnabledPointer: u16 = Blockchain.nextPointer;
+const gateTokenPointer: u16 = Blockchain.nextPointer;
+const gateAmountPointer: u16 = Blockchain.nextPointer;
 
 @final
 export class MultiSender extends ReentrancyGuard {
@@ -36,6 +44,9 @@ export class MultiSender extends ReentrancyGuard {
     private _fee: StoredU256 = new StoredU256(feePointer, EMPTY_POINTER);
     private _paused: StoredU256 = new StoredU256(pausedPointer, EMPTY_POINTER);
     private _treasury: StoredAddress = new StoredAddress(treasuryPointer);
+    private _gateEnabled: StoredU256 = new StoredU256(gateEnabledPointer, EMPTY_POINTER);
+    private _gateToken: StoredAddress = new StoredAddress(gateTokenPointer);
+    private _gateAmount: StoredU256 = new StoredU256(gateAmountPointer, EMPTY_POINTER);
 
     public constructor() {
         super();
@@ -46,6 +57,8 @@ export class MultiSender extends ReentrancyGuard {
         this._treasury.value = Blockchain.tx.sender;
         this._fee.value = u256.Zero;
         this._paused.value = u256.Zero;
+        this._gateEnabled.value = u256.Zero;
+        this._gateAmount.value = u256.Zero;
     }
 
     public override onUpdate(_calldata: Calldata): void {
@@ -93,6 +106,33 @@ export class MultiSender extends ReentrancyGuard {
         return new BytesWriter(0);
     }
 
+    @method({ name: 'enabled', type: ABIDataTypes.BOOL })
+    public setGateEnabled(calldata: Calldata): BytesWriter {
+        this._onlyOwner();
+        const enabled: boolean = calldata.readBoolean();
+        this._gateEnabled.value = enabled ? u256.One : u256.Zero;
+        this.emitEvent(new GateEnabledUpdatedEvent(enabled));
+        return new BytesWriter(0);
+    }
+
+    @method({ name: 'token', type: ABIDataTypes.ADDRESS })
+    public setGateToken(calldata: Calldata): BytesWriter {
+        this._onlyOwner();
+        const token: Address = calldata.readAddress();
+        this._gateToken.value = token;
+        this.emitEvent(new GateTokenUpdatedEvent(token));
+        return new BytesWriter(0);
+    }
+
+    @method({ name: 'amount', type: ABIDataTypes.UINT256 })
+    public setGateAmount(calldata: Calldata): BytesWriter {
+        this._onlyOwner();
+        const amount: u256 = calldata.readU256();
+        this._gateAmount.value = amount;
+        this.emitEvent(new GateAmountUpdatedEvent(amount));
+        return new BytesWriter(0);
+    }
+
     // ================================================================
     // CORE METHODS
     // ================================================================
@@ -104,6 +144,7 @@ export class MultiSender extends ReentrancyGuard {
     )
     public multiSend(calldata: Calldata): BytesWriter {
         this._requireNotPaused();
+        this._requireTokenGate();
 
         const token: Address = calldata.readAddress();
         const recipients: Address[] = calldata.readAddressArray();
@@ -152,6 +193,7 @@ export class MultiSender extends ReentrancyGuard {
     )
     public multiSendEqual(calldata: Calldata): BytesWriter {
         this._requireNotPaused();
+        this._requireTokenGate();
 
         const token: Address = calldata.readAddress();
         const recipients: Address[] = calldata.readAddressArray();
@@ -217,6 +259,30 @@ export class MultiSender extends ReentrancyGuard {
         return w;
     }
 
+    @method()
+    @returns({ name: 'enabled', type: ABIDataTypes.BOOL })
+    public isGateEnabled(_calldata: Calldata): BytesWriter {
+        const w: BytesWriter = new BytesWriter(1);
+        w.writeBoolean(this._gateEnabled.value !== u256.Zero);
+        return w;
+    }
+
+    @method()
+    @returns({ name: 'token', type: ABIDataTypes.ADDRESS })
+    public getGateToken(_calldata: Calldata): BytesWriter {
+        const w: BytesWriter = new BytesWriter(ADDRESS_BYTE_LENGTH);
+        w.writeAddress(this._gateToken.value);
+        return w;
+    }
+
+    @method()
+    @returns({ name: 'amount', type: ABIDataTypes.UINT256 })
+    public getGateAmount(_calldata: Calldata): BytesWriter {
+        const w: BytesWriter = new BytesWriter(U256_BYTE_LENGTH);
+        w.writeU256(this._gateAmount.value);
+        return w;
+    }
+
     // ================================================================
     // INTERNAL HELPERS
     // ================================================================
@@ -234,6 +300,33 @@ export class MultiSender extends ReentrancyGuard {
     protected _requireNotPaused(): void {
         if (this._isPaused()) {
             throw new Revert('Contract is paused');
+        }
+    }
+
+    protected _requireTokenGate(): void {
+        // If gate is disabled, skip
+        if (this._gateEnabled.value === u256.Zero) return;
+
+        const gateAmount: u256 = this._gateAmount.value;
+        // If no minimum amount configured, skip
+        if (gateAmount === u256.Zero) return;
+
+        const gateToken: Address = this._gateToken.value;
+        const sender: Address = Blockchain.tx.sender;
+
+        // Cross-contract call: gateToken.balanceOf(sender)
+        const cd: BytesWriter = new BytesWriter(
+            SELECTOR_BYTE_LENGTH + ADDRESS_BYTE_LENGTH,
+        );
+        cd.writeSelector(encodeSelector('balanceOf(address)'));
+        cd.writeAddress(sender);
+
+        // stopExecutionOnFailure = true — reverts if token contract invalid
+        const result = Blockchain.call(gateToken, cd);
+        const balance: u256 = result.data.readU256();
+
+        if (balance < gateAmount) {
+            throw new Revert('Insufficient gate token balance');
         }
     }
 }

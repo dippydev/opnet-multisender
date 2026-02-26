@@ -21,17 +21,20 @@ const STATUS_CONFIG = {
   completed: {
     Icon: CheckCircle,
     color: 'text-[var(--color-success)]',
-    border: 'border-[var(--color-success)]/30',
+    border: 'border-[var(--color-border)]',
+    badge: 'bg-[var(--color-success)]/10 text-[var(--color-success)]',
   },
   partial: {
     Icon: AlertTriangle,
     color: 'text-[var(--color-warning)]',
-    border: 'border-[var(--color-warning)]/30',
+    border: 'border-[var(--color-border)]',
+    badge: 'bg-[var(--color-warning)]/10 text-[var(--color-warning)]',
   },
   failed: {
     Icon: XCircle,
     color: 'text-[var(--color-error)]',
-    border: 'border-[var(--color-error)]/30',
+    border: 'border-[var(--color-border)]',
+    badge: 'bg-[var(--color-error)]/10 text-[var(--color-error)]',
   },
 } as const;
 
@@ -55,27 +58,29 @@ export default function History() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-4">
-        {t('pages.history.title')}
-      </h1>
-      <p className="text-[var(--color-text-secondary)] mb-8">
-        {t('pages.history.description')}
-      </p>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-24">
+      <div className="mb-16">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-[-0.04em] uppercase text-[var(--color-text-primary)] mb-2">
+          {t('pages.history.title')}
+        </h1>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          {t('pages.history.description')}
+        </p>
+      </div>
 
       <ScheduledSends />
 
-      {/* Tab switcher */}
-      <div className="mt-8 flex gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-1 mb-4">
+      {/* Tab switcher — Swiss text-based */}
+      <div className="mt-8 flex gap-6 border-b border-[var(--color-border)] pb-3 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors ${
               activeTab === tab.key
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-border)]'
+                ? 'text-[var(--color-accent)]'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
             <tab.Icon className="h-4 w-4" />
@@ -86,9 +91,9 @@ export default function History() {
 
       {/* Tab content */}
       {activeTab === 'history' && (
-        <div className="space-y-3">
+        <div>
           {loading && (
-            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6 text-center">
+            <div className="border border-[var(--color-border)] p-8 text-center">
               <p className="text-sm text-[var(--color-text-muted)]">
                 {t('receipt.loading')}
               </p>
@@ -96,22 +101,40 @@ export default function History() {
           )}
 
           {!loading && entries.length === 0 && (
-            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6 text-center">
+            <div className="border border-[var(--color-border)] p-8 text-center">
               <p className="text-sm text-[var(--color-text-muted)]">
                 {t('receipt.noHistory')}
               </p>
             </div>
           )}
 
-          {!loading &&
-            entries.map((entry) => (
-              <HistoryRow
-                key={entry.id}
-                entry={entry}
-                onExport={() => downloadHistoryReceipt(entry)}
-                onRemove={() => removeEntry(entry.id)}
-              />
-            ))}
+          {/* Table layout for history */}
+          {!loading && entries.length > 0 && (
+            <div className="border border-[var(--color-border)] overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="border-b border-[var(--color-border)]">
+                  <tr className="text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
+                    <th className="p-4 sm:p-6">Timestamp</th>
+                    <th className="p-4 sm:p-6">Asset</th>
+                    <th className="p-4 sm:p-6 text-right hidden sm:table-cell">Amount</th>
+                    <th className="p-4 sm:p-6 text-right hidden sm:table-cell">Recipients</th>
+                    <th className="p-4 sm:p-6 text-center">Status</th>
+                    <th className="p-4 sm:p-6 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {entries.map((entry) => (
+                    <HistoryRow
+                      key={entry.id}
+                      entry={entry}
+                      onExport={() => downloadHistoryReceipt(entry)}
+                      onRemove={() => removeEntry(entry.id)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -129,9 +152,7 @@ function HistoryRow({
   onExport: () => void;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
   const config = STATUS_CONFIG[entry.status];
-  const { Icon } = config;
 
   const date = new Date(entry.createdAt);
   const dateStr = date.toLocaleDateString(undefined, {
@@ -145,73 +166,59 @@ function HistoryRow({
   });
 
   return (
-    <div
-      className={`group rounded-lg border ${config.border} bg-[var(--color-bg-card)] p-4`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        {/* Left: status + details */}
-        <div className="flex items-start gap-3 min-w-0">
-          <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${config.color}`} />
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-[var(--color-text-primary)]">
-                {entry.tokenSymbol}
-              </span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-border)] text-[var(--color-text-muted)]">
-                {t(`receipt.status${entry.status.charAt(0).toUpperCase()}${entry.status.slice(1)}`)}
-              </span>
-            </div>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
-              {t('receipt.entryDetail', {
-                count: entry.recipientCount,
-                amount: entry.totalAmount,
-                symbol: entry.tokenSymbol,
-              })}
-            </p>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              {dateStr} {timeStr}
-            </p>
-            {/* Tx hashes */}
-            {entry.txHashes.length > 0 && (
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {entry.txHashes.map((hash) => (
-                  <a
-                    key={hash}
-                    href={`${OPSCAN_BASE_URL}/tx/${hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors"
-                    title={hash}
-                  >
-                    {hash.slice(0, 8)}...{hash.slice(-6)}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ))}
-              </div>
-            )}
+    <tr className="text-sm group hover:bg-[var(--color-bg-card-hover)] transition-colors">
+      <td className="p-4 sm:p-6 font-mono text-xs text-[var(--color-text-secondary)]">
+        {dateStr} {timeStr}
+      </td>
+      <td className="p-4 sm:p-6">
+        <div className="font-bold text-[var(--color-text-primary)]">{entry.tokenSymbol}</div>
+        {entry.txHashes.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {entry.txHashes.slice(0, 2).map((hash) => (
+              <a
+                key={hash}
+                href={`${OPSCAN_BASE_URL}/tx/${hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[10px] font-mono text-[var(--color-accent)] hover:underline"
+                title={hash}
+              >
+                {hash.slice(0, 8)}...
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
+            ))}
           </div>
-        </div>
-
-        {/* Right: action buttons */}
-        <div className="flex items-center gap-1 shrink-0">
+        )}
+      </td>
+      <td className="p-4 sm:p-6 text-right font-mono hidden sm:table-cell">
+        {entry.totalAmount}
+      </td>
+      <td className="p-4 sm:p-6 text-right font-mono hidden sm:table-cell">
+        {String(entry.recipientCount).padStart(2, '0')}
+      </td>
+      <td className="p-4 sm:p-6 text-center">
+        <span className={`text-[9px] font-black tracking-tight uppercase px-2 py-1 ${config.badge}`}>
+          {entry.status}
+        </span>
+      </td>
+      <td className="p-4 sm:p-6 text-center">
+        <div className="flex items-center justify-center gap-1">
           <button
             type="button"
             onClick={onExport}
-            className="rounded-md p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)]"
-            title={t('receipt.export')}
+            className="p-1.5 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
           >
             <Download className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={onRemove}
-            className="rounded-md p-1.5 text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)]"
-            title={t('receipt.remove')}
+            className="p-1.5 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-all hover:text-[var(--color-error)]"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }

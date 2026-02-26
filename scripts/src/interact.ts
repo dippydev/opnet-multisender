@@ -94,6 +94,42 @@ const MULTISENDER_ABI: BitcoinInterfaceAbi = [
         type: BitcoinAbiTypes.Function,
     },
     {
+        name: 'setGateEnabled',
+        inputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setGateToken',
+        inputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setGateAmount',
+        inputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'isGateEnabled',
+        inputs: [],
+        outputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'getGateToken',
+        inputs: [],
+        outputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'getGateAmount',
+        inputs: [],
+        outputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
         name: 'MultiSendExecuted',
         values: [
             { name: 'sender', type: ABIDataTypes.ADDRESS },
@@ -126,6 +162,21 @@ const MULTISENDER_ABI: BitcoinInterfaceAbi = [
         values: [],
         type: BitcoinAbiTypes.Event,
     },
+    {
+        name: 'GateEnabledUpdated',
+        values: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Event,
+    },
+    {
+        name: 'GateTokenUpdated',
+        values: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+        type: BitcoinAbiTypes.Event,
+    },
+    {
+        name: 'GateAmountUpdated',
+        values: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Event,
+    },
     ...OP_NET_ABI,
 ];
 
@@ -142,6 +193,12 @@ interface IMultiSender extends IOP_NETContract {
     pause(): Promise<EmptyResult>;
     unpause(): Promise<EmptyResult>;
     transferOwnership(newOwner: Address): Promise<EmptyResult>;
+    setGateEnabled(enabled: boolean): Promise<EmptyResult>;
+    setGateToken(token: Address): Promise<EmptyResult>;
+    setGateAmount(amount: bigint): Promise<EmptyResult>;
+    isGateEnabled(): Promise<CallResult<{ enabled: boolean }, OPNetEvent<never>[]>>;
+    getGateToken(): Promise<CallResult<{ token: Address }, OPNetEvent<never>[]>>;
+    getGateAmount(): Promise<CallResult<{ amount: bigint }, OPNetEvent<never>[]>>;
 }
 
 // ── Help text ────────────────────────────────────────────────────────
@@ -152,12 +209,19 @@ Read-only commands:
   --get-owner              Show the current contract owner
   --get-fee                Show the current fee (raw u256)
   --is-paused              Show whether the contract is paused
+  --is-gate-enabled        Show whether the token gate is enabled
+  --get-gate-token         Show the gate token address
+  --get-gate-amount        Show the gate minimum amount (raw u256)
 
 Write commands (simulates first, then sends on-chain):
   --pause                  Pause the contract (owner only)
   --unpause                Unpause the contract (owner only)
   --set-fee <amount>       Set the fee amount (owner only)
   --transfer-ownership <address>  Transfer ownership (owner only)
+  --enable-gate            Enable the token gate (owner only)
+  --disable-gate           Disable the token gate (owner only)
+  --set-gate-token <address>  Set the gate token contract (owner only)
+  --set-gate-amount <amount>  Set the gate minimum amount (owner only)
 
 Options:
   --help                   Show this help message
@@ -328,6 +392,143 @@ async function main(): Promise<void> {
 
         console.log(`Simulating transferOwnership(${newOwnerStr})...`);
         const simulation = await contract.transferOwnership(newOwnerAddr);
+
+        if (simulation.revert) {
+            console.log('Simulation REVERTED:', simulation.revert);
+        } else {
+            console.log('Simulation SUCCESS — gas:', simulation.estimatedGas?.toString() ?? 'N/A');
+            console.log('Sending transaction...');
+
+            const receipt = await simulation.sendTransaction({
+                signer: wallet.signer,
+                mldsaSigner: wallet.mldsaSigner,
+                refundTo: wallet.p2tr,
+                maximumAllowedSatToSpend: 100_000n,
+                network: NETWORK,
+                feeRate: 5,
+            });
+
+            console.log('Transaction broadcast! TX:', receipt.transactionId);
+        }
+    }
+
+    // ── Gate read-only commands ─────────────────────────────────────
+    if (getFlag('--is-gate-enabled')) {
+        const result = await contract.isGateEnabled();
+        if (result.revert) {
+            console.log('isGateEnabled REVERTED:', result.revert);
+        } else {
+            console.log('Gate enabled:', result.properties.enabled);
+        }
+    }
+
+    if (getFlag('--get-gate-token')) {
+        const result = await contract.getGateToken();
+        if (result.revert) {
+            console.log('getGateToken REVERTED:', result.revert);
+        } else {
+            console.log('Gate token:', result.properties.token.toString());
+        }
+    }
+
+    if (getFlag('--get-gate-amount')) {
+        const result = await contract.getGateAmount();
+        if (result.revert) {
+            console.log('getGateAmount REVERTED:', result.revert);
+        } else {
+            console.log('Gate amount:', result.properties.amount.toString());
+        }
+    }
+
+    // ── Gate write commands ───────────────────────────────────────
+    if (getFlag('--enable-gate')) {
+        console.log('Simulating setGateEnabled(true)...');
+        const simulation = await contract.setGateEnabled(true);
+
+        if (simulation.revert) {
+            console.log('Simulation REVERTED:', simulation.revert);
+        } else {
+            console.log('Simulation SUCCESS — gas:', simulation.estimatedGas?.toString() ?? 'N/A');
+            console.log('Sending transaction...');
+
+            const receipt = await simulation.sendTransaction({
+                signer: wallet.signer,
+                mldsaSigner: wallet.mldsaSigner,
+                refundTo: wallet.p2tr,
+                maximumAllowedSatToSpend: 100_000n,
+                network: NETWORK,
+                feeRate: 5,
+            });
+
+            console.log('Transaction broadcast! TX:', receipt.transactionId);
+        }
+    }
+
+    if (getFlag('--disable-gate')) {
+        console.log('Simulating setGateEnabled(false)...');
+        const simulation = await contract.setGateEnabled(false);
+
+        if (simulation.revert) {
+            console.log('Simulation REVERTED:', simulation.revert);
+        } else {
+            console.log('Simulation SUCCESS — gas:', simulation.estimatedGas?.toString() ?? 'N/A');
+            console.log('Sending transaction...');
+
+            const receipt = await simulation.sendTransaction({
+                signer: wallet.signer,
+                mldsaSigner: wallet.mldsaSigner,
+                refundTo: wallet.p2tr,
+                maximumAllowedSatToSpend: 100_000n,
+                network: NETWORK,
+                feeRate: 5,
+            });
+
+            console.log('Transaction broadcast! TX:', receipt.transactionId);
+        }
+    }
+
+    if (getFlag('--set-gate-token')) {
+        const tokenStr = getFlagValue('--set-gate-token');
+        if (!tokenStr) {
+            console.error('Error: --set-gate-token requires an address. Example: --set-gate-token opt1p...');
+            process.exit(1);
+        }
+
+        console.log(`Resolving gate token address: ${tokenStr}`);
+        const tokenAddr = await provider.getPublicKeyInfo(tokenStr, true);
+
+        console.log(`Simulating setGateToken(${tokenStr})...`);
+        const simulation = await contract.setGateToken(tokenAddr);
+
+        if (simulation.revert) {
+            console.log('Simulation REVERTED:', simulation.revert);
+        } else {
+            console.log('Simulation SUCCESS — gas:', simulation.estimatedGas?.toString() ?? 'N/A');
+            console.log('Sending transaction...');
+
+            const receipt = await simulation.sendTransaction({
+                signer: wallet.signer,
+                mldsaSigner: wallet.mldsaSigner,
+                refundTo: wallet.p2tr,
+                maximumAllowedSatToSpend: 100_000n,
+                network: NETWORK,
+                feeRate: 5,
+            });
+
+            console.log('Transaction broadcast! TX:', receipt.transactionId);
+        }
+    }
+
+    if (getFlag('--set-gate-amount')) {
+        const amountStr = getFlagValue('--set-gate-amount');
+        if (!amountStr) {
+            console.error('Error: --set-gate-amount requires a numeric amount. Example: --set-gate-amount 10000000000000000000000');
+            process.exit(1);
+        }
+
+        const amount = BigInt(amountStr);
+        console.log(`Simulating setGateAmount(${amount})...`);
+        const simulation = await contract.setGateAmount(amount);
 
         if (simulation.revert) {
             console.log('Simulation REVERTED:', simulation.revert);

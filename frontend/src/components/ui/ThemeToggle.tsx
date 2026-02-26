@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const THEME_KEY = 'multisender_theme';
+const THEME_KEY = 'bitsend_theme';
 
 type Theme = 'dark' | 'light';
 
@@ -32,7 +32,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-card-hover)] transition-colors"
+      className="p-2 border border-[var(--color-border)] hover:border-[var(--color-border-hover)] transition-colors"
       title={label}
       aria-label={label}
     >

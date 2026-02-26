@@ -10,19 +10,15 @@ export function NetworkBadge() {
   const isTestnet = network === 'testnet';
 
   return (
-    <div
-      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-        isTestnet
-          ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-          : 'bg-green-500/10 text-green-400 border border-green-500/20'
-      }`}
-    >
-      <div
+    <div className="hidden lg:flex items-center gap-2 px-3 py-1 border border-[var(--color-border)] rounded-full">
+      <span
         className={`w-1.5 h-1.5 rounded-full ${
-          isTestnet ? 'bg-yellow-400' : 'bg-green-400'
+          isTestnet ? 'bg-[var(--color-success)]' : 'bg-[var(--color-success)]'
         }`}
       />
-      {isTestnet ? t('wallet.testnet') : t('wallet.mainnet')}
+      <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)]">
+        {isTestnet ? t('wallet.testnet') : t('wallet.mainnet')}
+      </span>
     </div>
   );
 }

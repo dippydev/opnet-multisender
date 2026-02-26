@@ -4,6 +4,7 @@ import { getDb, closeDb } from './db/index.js';
 import { registerTokenRoutes } from './routes/tokens.js';
 import { registerHistoryRoutes } from './routes/history.js';
 import { registerCSVRoutes } from './routes/csv.js';
+import { registerStatsRoutes } from './routes/stats.js';
 
 const app = new HyperExpress.Server();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -17,11 +18,8 @@ app.use((_req, res, next) => {
     next();
 });
 
-// Handle preflight OPTIONS requests
+// Handle preflight OPTIONS requests (CORS headers already set by middleware above)
 app.options('/*', (_req, res) => {
-    res.header('Access-Control-Allow-Origin', FRONTEND_URL);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.status(204).send('');
 });
 
@@ -45,6 +43,7 @@ app.get('/health', (_req, res) => {
 registerTokenRoutes(app);
 registerHistoryRoutes(app);
 registerCSVRoutes(app);
+registerStatsRoutes(app);
 
 // Start server
 app.listen(PORT)

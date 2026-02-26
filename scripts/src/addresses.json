@@ -1,6 +1,7 @@
 {
     "testnet": {
-        "bobContract": "opt1sqqy2evse4nuxy5x7h8l5zqr286h8w9hy8ggt9je9"
+        "bobContract": "opt1sqqy2evse4nuxy5x7h8l5zqr286h8w9hy8ggt9je9",
+        "contract": "opt1sqrrqhhyn6zh9t32tpxlhr5rp7qqe7ga7sq8secql"
     },
     "mainnet": {}
 }

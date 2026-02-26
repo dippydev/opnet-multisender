@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Bitcoin, Coins, Search, X } from 'lucide-react';
-import { KNOWN_TOKENS, type KnownToken } from '../../config/constants';
+import type { KnownToken } from '../../config/constants';
 import { useToken, type TokenInfo } from '../../hooks/useToken';
-import BalanceDisplay from './BalanceDisplay';
+import { useTokenBalances } from '../../hooks/useTokenBalances';
+import { useGlobalTokens } from '../../hooks/useGlobalTokens';
+import BalanceDisplay, { formatBalance } from './BalanceDisplay';
 
 interface TokenSelectorProps {
   walletAddress: string | null;
@@ -23,6 +25,11 @@ export default function TokenSelector({
     selectKnownToken,
     selectCustomToken,
   } = useToken(walletAddress);
+
+  const { tokens: globalTokens, registerToken } = useGlobalTokens();
+
+  const { btcBalance, tokenBalances, loading: balancesLoading } =
+    useTokenBalances(walletAddress, globalTokens);
 
   const [isOpen, setIsOpen] = useState(false);
   const [customAddress, setCustomAddress] = useState('');
@@ -66,6 +73,8 @@ export default function TokenSelector({
     const addr = customAddress.trim();
     if (!addr) return;
     selectCustomToken(addr);
+    // Register with server so it appears globally for everyone
+    void registerToken(addr);
     setIsOpen(false);
     setShowCustomInput(false);
   }
@@ -82,9 +91,16 @@ export default function TokenSelector({
     return `${token.symbol} — ${token.name}`;
   }
 
+  function getKnownTokenBalance(address: string): bigint | null {
+    const entry = tokenBalances.find(
+      (tb) => tb.address.toLowerCase() === address.toLowerCase(),
+    );
+    return entry ? entry.balance : null;
+  }
+
   return (
-    <div className="space-y-3">
-      <label className="block text-sm font-medium text-[var(--color-text-secondary)]">
+    <div className="space-y-4">
+      <label className="block text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)]">
         {t('token.label')}
       </label>
 
@@ -93,81 +109,106 @@ export default function TokenSelector({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-full items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] px-4 py-3 text-left transition-colors hover:border-[var(--color-border-hover)] focus:border-[var(--color-accent)] focus:outline-none"
+          className="flex w-full items-center justify-between border border-[var(--color-border)] bg-[var(--color-bg-card)] px-4 py-3 text-left transition-colors hover:border-[var(--color-accent)] focus:border-[var(--color-accent)] focus:outline-none"
         >
           <div className="flex items-center gap-3">
             {loading ? (
-              <div className="h-5 w-5 animate-pulse rounded-full bg-[var(--color-border)]" />
+              <div className="h-4 w-4 animate-pulse bg-[var(--color-border)]" />
             ) : token?.isBTC ? (
-              <Bitcoin className="h-5 w-5 text-[var(--color-accent)]" />
+              <Bitcoin className="h-4 w-4 text-[var(--color-accent)]" />
             ) : token ? (
-              <Coins className="h-5 w-5 text-[var(--color-accent)]" />
+              <Coins className="h-4 w-4 text-[var(--color-accent)]" />
             ) : (
-              <Coins className="h-5 w-5 text-[var(--color-text-muted)]" />
+              <Coins className="h-4 w-4 text-[var(--color-text-muted)]" />
             )}
             {loading ? (
-              <div className="h-4 w-32 animate-pulse rounded bg-[var(--color-border)]" />
+              <div className="h-3 w-32 animate-pulse bg-[var(--color-border)]" />
             ) : (
               <span
-                className={
+                className={`text-[13px] ${
                   token
                     ? 'text-[var(--color-text-primary)]'
                     : 'text-[var(--color-text-muted)]'
-                }
+                }`}
               >
                 {getSelectedLabel()}
               </span>
             )}
           </div>
           <ChevronDown
-            className={`h-4 w-4 text-[var(--color-text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`h-3.5 w-3.5 text-[var(--color-text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
           />
         </button>
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute z-50 mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
+          <div className="absolute z-50 mt-px w-full border border-[var(--color-border)] bg-[var(--color-bg-card)]">
             {/* BTC option */}
             <button
               type="button"
               onClick={handleSelectBTC}
               className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--color-bg-card-hover)]"
             >
-              <Bitcoin className="h-5 w-5 text-[var(--color-accent)]" />
-              <div>
-                <div className="font-medium text-[var(--color-text-primary)]">
-                  BTC ({t('token.native')})
+              <Bitcoin className="h-4 w-4 text-[var(--color-accent)]" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-medium text-[var(--color-text-primary)]">
+                    BTC ({t('token.native')})
+                  </span>
+                  {walletAddress && (
+                    <span className="ml-2 font-mono text-[11px] text-[var(--color-text-muted)]">
+                      {balancesLoading ? (
+                        <span className="inline-block h-3 w-16 animate-pulse bg-[var(--color-border)]" />
+                      ) : (
+                        `${formatBalance(btcBalance, 8)} tBTC`
+                      )}
+                    </span>
+                  )}
                 </div>
-                <div className="text-xs text-[var(--color-text-muted)]">
+                <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
                   {t('token.btcDescription')}
                 </div>
               </div>
             </button>
 
             {/* Divider */}
-            {KNOWN_TOKENS.length > 0 && (
+            {globalTokens.length > 0 && (
               <div className="border-t border-[var(--color-border)]" />
             )}
 
             {/* Known tokens */}
-            {KNOWN_TOKENS.map((kt) => (
-              <button
-                key={kt.address}
-                type="button"
-                onClick={() => handleSelectKnown(kt)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--color-bg-card-hover)]"
-              >
-                <Coins className="h-5 w-5 text-[var(--color-text-secondary)]" />
-                <div>
-                  <div className="font-medium text-[var(--color-text-primary)]">
-                    {kt.symbol}
+            {globalTokens.map((kt) => {
+              const bal = getKnownTokenBalance(kt.address);
+              return (
+                <button
+                  key={kt.address}
+                  type="button"
+                  onClick={() => handleSelectKnown(kt)}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--color-bg-card-hover)]"
+                >
+                  <Coins className="h-4 w-4 text-[var(--color-text-secondary)]" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[13px] font-medium text-[var(--color-text-primary)]">
+                        {kt.symbol}
+                      </span>
+                      {walletAddress && (
+                        <span className="ml-2 font-mono text-[11px] text-[var(--color-text-muted)]">
+                          {balancesLoading ? (
+                            <span className="inline-block h-3 w-16 animate-pulse bg-[var(--color-border)]" />
+                          ) : bal !== null ? (
+                            `${formatBalance(bal, kt.decimals)} ${kt.symbol}`
+                          ) : null}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                      {kt.name}
+                    </div>
                   </div>
-                  <div className="text-xs text-[var(--color-text-muted)]">
-                    {kt.name}
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
 
             {/* Divider */}
             <div className="border-t border-[var(--color-border)]" />
@@ -179,8 +220,8 @@ export default function TokenSelector({
                 onClick={() => setShowCustomInput(true)}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--color-bg-card-hover)]"
               >
-                <Search className="h-5 w-5 text-[var(--color-text-muted)]" />
-                <span className="text-[var(--color-text-secondary)]">
+                <Search className="h-4 w-4 text-[var(--color-text-muted)]" />
+                <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)]">
                   {t('token.customAddress')}
                 </span>
               </button>
@@ -193,13 +234,13 @@ export default function TokenSelector({
                   onKeyDown={handleCustomKeyDown}
                   placeholder={t('token.pasteAddress')}
                   autoFocus
-                  className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
+                  className="flex-1 border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-[12px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleCustomSubmit}
                   disabled={!customAddress.trim()}
-                  className="rounded bg-[var(--color-accent)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+                  className="bg-[var(--color-accent)] px-3 py-2 text-[11px] font-bold tracking-[0.15em] uppercase text-black transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
                   {t('token.go')}
                 </button>
@@ -209,9 +250,9 @@ export default function TokenSelector({
                     setShowCustomInput(false);
                     setCustomAddress('');
                   }}
-                  className="rounded p-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
+                  className="p-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             )}
@@ -221,7 +262,7 @@ export default function TokenSelector({
 
       {/* Error state */}
       {error && (
-        <div className="rounded-lg border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 px-4 py-2 text-sm text-[var(--color-error)]">
+        <div className="border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 px-4 py-2 text-[11px] font-bold tracking-[0.15em] uppercase text-[var(--color-error)]">
           {t('token.invalidAddress')}
         </div>
       )}

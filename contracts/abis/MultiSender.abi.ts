@@ -28,6 +28,24 @@ export const MultiSenderAbi = [
         type: BitcoinAbiTypes.Function,
     },
     {
+        name: 'setGateEnabled',
+        inputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setGateToken',
+        inputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setGateAmount',
+        inputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
+        outputs: [],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
         name: 'multiSend',
         inputs: [
             { name: 'token', type: ABIDataTypes.ADDRESS },
@@ -63,6 +81,24 @@ export const MultiSenderAbi = [
         name: 'isPaused',
         inputs: [],
         outputs: [{ name: 'paused', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'isGateEnabled',
+        inputs: [],
+        outputs: [{ name: 'enabled', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'getGateToken',
+        inputs: [],
+        outputs: [{ name: 'token', type: ABIDataTypes.ADDRESS }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'getGateAmount',
+        inputs: [],
+        outputs: [{ name: 'amount', type: ABIDataTypes.UINT256 }],
         type: BitcoinAbiTypes.Function,
     },
     ...MultiSenderEvents,

@@ -19,12 +19,16 @@ export default function AddressDisplay({
       ? `${address.slice(0, maxLength / 2 + 2)}...${address.slice(-(maxLength / 2 - 2))}`
       : address;
 
-  const handleCopy = useCallback(() => {
-    void navigator.clipboard.writeText(address).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }, [address]);
+  const handleCopy = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      void navigator.clipboard.writeText(address).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      });
+    },
+    [address],
+  );
 
   return (
     <span className="inline-flex items-center gap-1.5">

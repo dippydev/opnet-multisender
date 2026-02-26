@@ -18,6 +18,7 @@ import AllowanceManager from '../components/token/AllowanceManager';
 import SendButton from '../components/transaction/SendButton';
 import TransactionStatus from '../components/transaction/TransactionStatus';
 import SendQueue from '../components/transaction/SendQueue';
+import TokenGate from '../components/gate/TokenGate';
 import { validateAddress, validateAmount } from '../lib/validation';
 import {
   useHistoryStore,
@@ -34,10 +35,10 @@ function StepConnect() {
 
   if (isConnected) {
     return (
-      <div className="flex flex-col items-center gap-6 py-12 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success)]/20">
+      <div className="flex flex-col items-center gap-6 py-16 text-center">
+        <div className="flex h-12 w-12 items-center justify-center bg-[var(--color-success)]/20">
           <svg
-            className="h-8 w-8 text-[var(--color-success)]"
+            className="h-6 w-6 text-[var(--color-success)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -51,7 +52,7 @@ function StepConnect() {
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+          <h3 className="text-sm font-bold tracking-[0.1em] uppercase text-[var(--color-text-primary)]">
             {t('wizard.walletConnected')}
           </h3>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -61,7 +62,7 @@ function StepConnect() {
         <button
           type="button"
           onClick={nextStep}
-          className="rounded-lg bg-[var(--color-accent)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+          className="bg-[var(--color-accent)] text-black px-8 py-3 text-[11px] font-bold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
         >
           {t('wizard.continue')}
         </button>
@@ -70,10 +71,10 @@ function StepConnect() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 py-12 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[var(--color-border)] bg-[var(--color-bg-card)]">
+    <div className="flex flex-col items-center gap-6 py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center border border-[var(--color-border)]">
         <svg
-          className="h-8 w-8 text-[var(--color-text-muted)]"
+          className="h-6 w-6 text-[var(--color-text-muted)]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -87,7 +88,7 @@ function StepConnect() {
         </svg>
       </div>
       <div>
-        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <h3 className="text-sm font-bold tracking-[0.1em] uppercase text-[var(--color-text-primary)]">
           {t('wizard.connectWallet')}
         </h3>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -97,7 +98,7 @@ function StepConnect() {
       <button
         type="button"
         onClick={connect}
-        className="rounded-lg bg-[var(--color-accent)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+        className="bg-[var(--color-accent)] text-black px-8 py-3 text-[11px] font-bold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
       >
         {t('wallet.connect')}
       </button>
@@ -126,7 +127,7 @@ function StepSelectToken() {
         <button
           type="button"
           onClick={prevStep}
-          className="rounded-lg border border-[var(--color-border)] px-6 py-3 font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
+          className="border border-[var(--color-border)] px-6 py-3 text-[11px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] transition-colors"
         >
           {t('wizard.back')}
         </button>
@@ -134,7 +135,7 @@ function StepSelectToken() {
           type="button"
           onClick={nextStep}
           disabled={!selectedToken}
-          className="rounded-lg bg-[var(--color-accent)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="bg-[var(--color-accent)] text-black px-8 py-3 text-[11px] font-bold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('wizard.continue')}
         </button>
@@ -166,27 +167,31 @@ function StepRecipients() {
 
   return (
     <div className="space-y-6">
-      {/* Input method tabs */}
-      <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
-        {INPUT_TABS.map(({ key, labelKey, Icon }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setActiveTab(key)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              activeTab === key
-                ? 'bg-[var(--color-bg-card)] text-[var(--color-accent)] shadow-sm'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
-            }`}
-          >
-            <Icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{t(labelKey)}</span>
-          </button>
-        ))}
+      {/* Input method tabs — Swiss style: inline text links */}
+      <div className="flex items-center justify-between mb-3">
+        <label className="text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)]">
+          {t('recipients.addressLabel')}
+        </label>
+        <div className="flex gap-6">
+          {INPUT_TABS.map(({ key, labelKey }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActiveTab(key)}
+              className={`text-[10px] font-bold tracking-[0.15em] uppercase transition-colors ${
+                activeTab === key
+                  ? 'text-[var(--color-accent)]'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
+              }`}
+            >
+              {t(labelKey)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Active input method */}
-      <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
+      <div className="border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
         {activeTab === 'manual' && <ManualEntry />}
         {activeTab === 'csv' && <CSVUploader />}
         {activeTab === 'paste' && <PasteInput />}
@@ -198,7 +203,7 @@ function StepRecipients() {
         <button
           type="button"
           onClick={() => setShowAddressBook(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+          className="flex items-center gap-1.5 border border-[var(--color-border)] px-3 py-2 text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
         >
           <BookUser className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t('addressBook.openBook')}</span>
@@ -208,12 +213,12 @@ function StepRecipients() {
       {/* Address Book modal */}
       {showAddressBook && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="mx-4 w-full max-w-lg rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6 shadow-xl">
+          <div className="mx-4 w-full max-w-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-end">
               <button
                 type="button"
                 onClick={() => setShowAddressBook(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg)] hover:text-[var(--color-text-primary)]"
+                className="flex h-8 w-8 items-center justify-center text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -230,7 +235,7 @@ function StepRecipients() {
         <button
           type="button"
           onClick={prevStep}
-          className="rounded-lg border border-[var(--color-border)] px-6 py-3 font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
+          className="border border-[var(--color-border)] px-6 py-3 text-[11px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] transition-colors"
         >
           {t('wizard.back')}
         </button>
@@ -238,7 +243,7 @@ function StepRecipients() {
           type="button"
           onClick={nextStep}
           disabled={!allValid}
-          className="rounded-lg bg-[var(--color-accent)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="bg-[var(--color-accent)] text-black px-8 py-3 text-[11px] font-bold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('wizard.continue')}
         </button>
@@ -304,14 +309,14 @@ function StepReview() {
       {/* Allowance manager — view and revoke token allowance */}
       <AllowanceManager />
 
-      {/* Send button (replaces the old plain Send button) */}
+      {/* Send button */}
       <SendButton disabled={!approvalReady} onResults={handleResults} />
 
       <div className="flex justify-start">
         <button
           type="button"
           onClick={prevStep}
-          className="rounded-lg border border-[var(--color-border)] px-6 py-3 font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
+          className="border border-[var(--color-border)] px-6 py-3 text-[11px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] transition-colors"
         >
           {t('wizard.back')}
         </button>
@@ -351,26 +356,28 @@ export default function MultiSender() {
   const StepComponent = STEP_COMPONENTS[currentStep]!;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-12">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-24">
+      <div className="mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-[-0.04em] uppercase text-[var(--color-text-primary)]">
           {t('pages.multisender.title')}
         </h1>
-        <p className="mt-1 text-sm sm:text-base text-[var(--color-text-secondary)]">
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           {t('pages.multisender.description')}
         </p>
       </div>
 
-      {/* Send queue — shows completed/queued sends from this session */}
-      {sendQueue.length > 0 && (
-        <div className="mb-6">
-          <SendQueue />
-        </div>
-      )}
+      <TokenGate>
+        {/* Send queue — shows completed/queued sends from this session */}
+        {sendQueue.length > 0 && (
+          <div className="mb-6">
+            <SendQueue />
+          </div>
+        )}
 
-      <StepWizard>
-        <StepComponent />
-      </StepWizard>
+        <StepWizard>
+          <StepComponent />
+        </StepWizard>
+      </TokenGate>
     </div>
   );
 }

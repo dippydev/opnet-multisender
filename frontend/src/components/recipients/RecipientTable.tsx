@@ -36,16 +36,18 @@ export default function RecipientTable() {
     }
   }, [isAirdrop, airdropTotalAmount, recipients.length, recalculateAirdropAmounts]);
 
+  // Stable key for percentage values — triggers recalc when any percentage changes
+  const percentageKey = useMemo(
+    () => recipients.map((r) => r.percentage ?? '').join(','),
+    [recipients],
+  );
+
   // Recalculate amounts when total or percentages change in percentage mode
   useEffect(() => {
     if (isPercentage && recipients.length > 0) {
       recalculatePercentageAmounts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPercentage, percentageTotalAmount, recipients.length, recalculatePercentageAmounts,
-    // Also recalculate when any percentage value changes
-    ...recipients.map((r) => r.percentage),
-  ]);
+  }, [isPercentage, percentageTotalAmount, recipients.length, recalculatePercentageAmounts, percentageKey]);
 
   // Percentage sum validation
   const percentageSum = useMemo(() => {
@@ -185,18 +187,18 @@ export default function RecipientTable() {
     <div className="space-y-4">
       {/* Header with count and clear */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-[var(--color-text-primary)]">
+        <div className="flex items-center gap-3">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-primary)]">
             {t('table.recipients')}
           </h3>
-          <span className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+          <span className="border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[10px] font-bold tracking-[0.15em] text-[var(--color-accent)]">
             {recipients.length}
           </span>
         </div>
         <button
           type="button"
           onClick={clearRecipients}
-          className="flex items-center gap-1 rounded px-2 py-1 text-xs text-[var(--color-error)] transition-colors hover:bg-[var(--color-error)]/10"
+          className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-error)] transition-colors hover:bg-[var(--color-error)]/10"
         >
           <X className="h-3 w-3" />
           {t('table.clearAll')}
@@ -204,14 +206,14 @@ export default function RecipientTable() {
       </div>
 
       {/* Distribution mode toggle */}
-      <div className="flex flex-col gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4">
-        <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
+      <div className="flex flex-col gap-3 border border-[var(--color-border)] p-4">
+        <div className="flex gap-4 border-b border-[var(--color-border)] pb-3">
           <button
             type="button"
             onClick={() => setDistributionMode('custom')}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${
               distributionMode === 'custom'
-                ? 'bg-[var(--color-bg-card)] text-[var(--color-accent)] shadow-sm'
+                ? 'text-[var(--color-accent)]'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
@@ -222,9 +224,9 @@ export default function RecipientTable() {
           <button
             type="button"
             onClick={() => setDistributionMode('airdrop')}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${
               isAirdrop
-                ? 'bg-[var(--color-bg-card)] text-[var(--color-accent)] shadow-sm'
+                ? 'text-[var(--color-accent)]'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
@@ -235,9 +237,9 @@ export default function RecipientTable() {
           <button
             type="button"
             onClick={() => setDistributionMode('percentage')}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${
               isPercentage
-                ? 'bg-[var(--color-bg-card)] text-[var(--color-accent)] shadow-sm'
+                ? 'text-[var(--color-accent)]'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
@@ -250,8 +252,8 @@ export default function RecipientTable() {
         {/* Airdrop total input */}
         {isAirdrop && (
           <div className="flex items-center gap-3">
-            <label className="text-sm text-[var(--color-text-secondary)] whitespace-nowrap">
-              {t('airdrop.totalAmount')}:
+            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)] whitespace-nowrap">
+              {t('airdrop.totalAmount')}
             </label>
             <input
               type="text"
@@ -259,10 +261,10 @@ export default function RecipientTable() {
               value={airdropTotalAmount}
               onChange={(e) => setAirdropTotalAmount(e.target.value)}
               placeholder="0.00"
-              className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
+              className="flex-1 border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
             />
             {selectedToken && (
-              <span className="text-sm text-[var(--color-text-muted)]">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 {selectedToken.symbol}
               </span>
             )}
@@ -285,8 +287,8 @@ export default function RecipientTable() {
         {/* Percentage total input */}
         {isPercentage && (
           <div className="flex items-center gap-3">
-            <label className="text-sm text-[var(--color-text-secondary)] whitespace-nowrap">
-              {t('percentage.totalAmount')}:
+            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)] whitespace-nowrap">
+              {t('percentage.totalAmount')}
             </label>
             <input
               type="text"
@@ -294,10 +296,10 @@ export default function RecipientTable() {
               value={percentageTotalAmount}
               onChange={(e) => setPercentageTotalAmount(e.target.value)}
               placeholder="0.00"
-              className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
+              className="flex-1 border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
             />
             {selectedToken && (
-              <span className="text-sm text-[var(--color-text-muted)]">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 {selectedToken.symbol}
               </span>
             )}
@@ -326,7 +328,7 @@ export default function RecipientTable() {
 
       {/* Duplicate warning */}
       {duplicateMap.size > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5 px-4 py-3">
+        <div className="flex items-center justify-between border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5 px-4 py-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-[var(--color-warning)]" />
             <span className="text-sm text-[var(--color-warning)]">
@@ -336,7 +338,7 @@ export default function RecipientTable() {
           <button
             type="button"
             onClick={handleMergeDuplicates}
-            className="flex items-center gap-1 rounded-md bg-[var(--color-warning)]/20 px-3 py-1.5 text-xs font-medium text-[var(--color-warning)] transition-colors hover:bg-[var(--color-warning)]/30"
+            className="flex items-center gap-1 bg-[var(--color-warning)]/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-warning)] transition-colors hover:bg-[var(--color-warning)]/30"
           >
             <GitMerge className="h-3 w-3" />
             {t('table.mergeDuplicates')}
@@ -345,25 +347,25 @@ export default function RecipientTable() {
       )}
 
       {/* Desktop table (hidden on mobile) */}
-      <div className="hidden sm:block overflow-x-auto rounded-lg border border-[var(--color-border)]">
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg)]">
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+            <tr className="border-b border-[var(--color-border)]">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 #
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 {t('recipients.addressLabel')}
               </th>
               {isPercentage && (
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+                <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                   %
                 </th>
               )}
-              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+              <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 {t('recipients.amountLabel')}
               </th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+              <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 {t('table.actions')}
               </th>
             </tr>
@@ -407,13 +409,20 @@ export default function RecipientTable() {
                           if (e.key === 'Escape') cancelEdit();
                         }}
                         autoFocus
-                        className="w-full rounded border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
+                        className="w-full border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
                       />
                     ) : (
-                      <button
-                        type="button"
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => startEdit(r.id, 'address', r.address)}
-                        className={`text-left ${
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            startEdit(r.id, 'address', r.address);
+                          }
+                        }}
+                        className={`cursor-pointer text-left ${
                           !addrValid.valid
                             ? 'text-[var(--color-error)]'
                             : isDuplicate
@@ -429,7 +438,7 @@ export default function RecipientTable() {
                         }
                       >
                         <AddressDisplay address={r.address} maxLength={20} />
-                      </button>
+                      </div>
                     )}
                   </td>
 
@@ -444,7 +453,7 @@ export default function RecipientTable() {
                           updateRecipientPercentage(r.id, e.target.value)
                         }
                         placeholder="0"
-                        className="w-20 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-right font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
+                        className="w-20 border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-right font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
                       />
                     </td>
                   )}
@@ -473,7 +482,7 @@ export default function RecipientTable() {
                           if (e.key === 'Escape') cancelEdit();
                         }}
                         autoFocus
-                        className="w-28 rounded border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 text-right font-mono text-sm text-[var(--color-text-primary)] outline-none"
+                        className="w-28 border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 text-right font-mono text-sm text-[var(--color-text-primary)] outline-none"
                       />
                     ) : (
                       <button
@@ -500,7 +509,7 @@ export default function RecipientTable() {
                     <button
                       type="button"
                       onClick={() => removeRecipient(r.id)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)]"
+                      className="inline-flex h-7 w-7 items-center justify-center text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)]"
                       title={t('recipients.removeRow')}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -527,7 +536,7 @@ export default function RecipientTable() {
           return (
             <div
               key={r.id}
-              className={`rounded-lg border p-3 ${
+              className={`border p-3 ${
                 !addrValid.valid || !amtValid.valid
                   ? 'border-[var(--color-error)]/30 bg-[var(--color-error)]/5'
                   : isDuplicate
@@ -537,13 +546,13 @@ export default function RecipientTable() {
             >
               {/* Card header: index + delete */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-[var(--color-text-muted)]">
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                   #{index + 1}
                 </span>
                 <button
                   type="button"
                   onClick={() => removeRecipient(r.id)}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)]"
+                  className="inline-flex h-7 w-7 items-center justify-center text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)]"
                   title={t('recipients.removeRow')}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -552,7 +561,7 @@ export default function RecipientTable() {
 
               {/* Address */}
               <div className="mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                   {t('recipients.addressLabel')}
                 </span>
                 {isEditingAddress ? (
@@ -566,13 +575,20 @@ export default function RecipientTable() {
                       if (e.key === 'Escape') cancelEdit();
                     }}
                     autoFocus
-                    className="mt-0.5 w-full rounded border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
+                    className="mt-0.5 w-full border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
                   />
                 ) : (
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => startEdit(r.id, 'address', r.address)}
-                    className={`mt-0.5 block w-full text-left ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        startEdit(r.id, 'address', r.address);
+                      }
+                    }}
+                    className={`mt-0.5 block w-full cursor-pointer text-left ${
                       !addrValid.valid
                         ? 'text-[var(--color-error)]'
                         : isDuplicate
@@ -581,7 +597,7 @@ export default function RecipientTable() {
                     }`}
                   >
                     <AddressDisplay address={r.address} maxLength={16} />
-                  </button>
+                  </div>
                 )}
               </div>
 
@@ -589,7 +605,7 @@ export default function RecipientTable() {
               <div className={`flex gap-3 ${isPercentage ? 'items-end' : ''}`}>
                 {isPercentage && (
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">%</span>
                     <input
                       type="text"
                       inputMode="decimal"
@@ -598,12 +614,12 @@ export default function RecipientTable() {
                         updateRecipientPercentage(r.id, e.target.value)
                       }
                       placeholder="0"
-                      className="mt-0.5 w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
+                      className="mt-0.5 w-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none transition-colors focus:border-[var(--color-accent)] placeholder:text-[var(--color-text-muted)]"
                     />
                   </div>
                 )}
                 <div className="flex-1">
-                  <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                     {t('recipients.amountLabel')}
                   </span>
                   {isAutoAmount ? (
@@ -625,7 +641,7 @@ export default function RecipientTable() {
                         if (e.key === 'Escape') cancelEdit();
                       }}
                       autoFocus
-                      className="mt-0.5 w-full rounded border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
+                      className="mt-0.5 w-full border border-[var(--color-accent)] bg-[var(--color-bg)] px-2 py-1 font-mono text-sm text-[var(--color-text-primary)] outline-none"
                     />
                   ) : (
                     <button
@@ -648,33 +664,33 @@ export default function RecipientTable() {
       </div>
 
       {/* Summary footer */}
-      <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border border-[var(--color-border)] p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Total to send */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--color-text-secondary)]">
-              {t('table.totalToSend')}:
+          <div>
+            <span className="block text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+              {t('table.totalToSend')}
             </span>
-            <span className="font-mono text-sm font-semibold text-[var(--color-text-primary)]">
+            <span className="mt-1 block font-mono text-sm font-bold text-[var(--color-text-primary)]">
               {totalAmount.toLocaleString(undefined, {
                 maximumFractionDigits: 18,
               })}
+              {selectedToken && (
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+                  {selectedToken.symbol}
+                </span>
+              )}
             </span>
-            {selectedToken && (
-              <span className="text-sm text-[var(--color-text-muted)]">
-                {selectedToken.symbol}
-              </span>
-            )}
           </div>
 
           {/* User balance */}
           {selectedToken && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                {t('table.yourBalance')}:
+            <div>
+              <span className="block text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+                {t('table.yourBalance')}
               </span>
               <span
-                className={`font-mono text-sm font-semibold ${
+                className={`mt-1 block font-mono text-sm font-bold ${
                   insufficientBalance
                     ? 'text-[var(--color-error)]'
                     : 'text-[var(--color-text-primary)]'
@@ -684,9 +700,9 @@ export default function RecipientTable() {
                   selectedToken.balance,
                   selectedToken.decimals,
                 )}
-              </span>
-              <span className="text-sm text-[var(--color-text-muted)]">
-                {selectedToken.symbol}
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+                  {selectedToken.symbol}
+                </span>
               </span>
             </div>
           )}
@@ -694,7 +710,7 @@ export default function RecipientTable() {
 
         {/* Insufficient balance warning */}
         {insufficientBalance && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-[var(--color-error)]">
+          <div className="mt-4 flex items-center gap-2 text-sm text-[var(--color-error)]">
             <AlertTriangle className="h-4 w-4" />
             {t('table.insufficientBalance')}
           </div>

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Check, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Check, Loader2, ShieldCheck, AlertCircle, Clock } from 'lucide-react';
 import {
   JSONRpcProvider,
   getContract,
@@ -19,6 +19,7 @@ type ApprovalStatus =
   | 'sufficient'
   | 'needed'
   | 'approving'
+  | 'pending'      // approval broadcast, waiting for on-chain confirmation
   | 'confirmed'
   | 'error';
 
@@ -36,6 +37,11 @@ function parseAmountToBigInt(amount: string, decimals: number): bigint {
   return BigInt(whole) * 10n ** BigInt(decimals) + BigInt(frac);
 }
 
+/** Poll interval for checking on-chain allowance (ms) */
+const POLL_INTERVAL = 5_000;
+/** Max time to wait for confirmation before giving up (ms) */
+const MAX_POLL_TIME = 300_000; // 5 minutes
+
 interface ApproveButtonProps {
   onStatusChange: (ready: boolean) => void;
 }
@@ -48,6 +54,7 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
   const [status, setStatus] = useState<ApprovalStatus>('idle');
   const [currentAllowance, setCurrentAllowance] = useState<bigint>(0n);
   const [error, setError] = useState<string | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Total amount needed in token's smallest unit
   const totalNeeded = useMemo(() => {
@@ -71,7 +78,61 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
     }
   }, [sendMode]);
 
-  // Check current allowance
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Fetch current on-chain allowance (returns the bigint)
+  const fetchAllowance = useCallback(async (): Promise<bigint> => {
+    if (
+      !selectedToken?.address ||
+      !address ||
+      !MULTISENDER_CONTRACT_ADDRESS
+    ) {
+      return 0n;
+    }
+
+    const provider = new JSONRpcProvider({
+      url: RPC_URL,
+      network: networks.opnetTestnet,
+    });
+
+    const tokenAddr = await provider.getPublicKeyInfo(
+      selectedToken.address,
+      true,
+    );
+
+    let senderAddr;
+    try {
+      senderAddr = await provider.getPublicKeyInfo(address, false);
+    } catch {
+      senderAddr = await provider.getPublicKeyInfo(address, true);
+    }
+
+    const spenderAddr = await provider.getPublicKeyInfo(
+      MULTISENDER_CONTRACT_ADDRESS,
+      true,
+    );
+
+    const token = getContract<IOP20Contract>(
+      tokenAddr,
+      OP_20_ABI,
+      provider,
+      networks.opnetTestnet,
+      senderAddr,
+    );
+
+    const result = await token.allowance(senderAddr, spenderAddr);
+    return result.properties.remaining;
+  }, [selectedToken, address]);
+
+  // Check current allowance and update status
   const checkAllowance = useCallback(async () => {
     if (
       !selectedToken?.address ||
@@ -86,38 +147,7 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
     setError(null);
 
     try {
-      const provider = new JSONRpcProvider({
-        url: RPC_URL,
-        network: networks.opnetTestnet,
-      });
-
-      const tokenAddr = await provider.getPublicKeyInfo(
-        selectedToken.address,
-        true,
-      );
-
-      let senderAddr;
-      try {
-        senderAddr = await provider.getPublicKeyInfo(address, false);
-      } catch {
-        senderAddr = await provider.getPublicKeyInfo(address, true);
-      }
-
-      const spenderAddr = await provider.getPublicKeyInfo(
-        MULTISENDER_CONTRACT_ADDRESS,
-        true,
-      );
-
-      const token = getContract<IOP20Contract>(
-        tokenAddr,
-        OP_20_ABI,
-        provider,
-        networks.opnetTestnet,
-        senderAddr,
-      );
-
-      const result = await token.allowance(senderAddr, spenderAddr);
-      const allowance = result.properties.remaining;
+      const allowance = await fetchAllowance();
       setCurrentAllowance(allowance);
 
       if (allowance >= totalNeeded) {
@@ -130,13 +160,52 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
       setError(t('review.allowanceCheckFailed'));
       setStatus('error');
     }
-  }, [selectedToken, address, sendMode, totalNeeded, t]);
+  }, [selectedToken, address, sendMode, totalNeeded, fetchAllowance, t]);
 
   // Check allowance on mount and when deps change
   useEffect(() => {
     if (sendMode === 'btc') return;
     void checkAllowance();
   }, [checkAllowance, sendMode]);
+
+  // Start polling for on-chain confirmation after approval broadcast
+  const startPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+    }
+
+    const startTime = Date.now();
+
+    pollTimerRef.current = setInterval(async () => {
+      // Timeout: stop polling after MAX_POLL_TIME
+      if (Date.now() - startTime > MAX_POLL_TIME) {
+        if (pollTimerRef.current) {
+          clearInterval(pollTimerRef.current);
+          pollTimerRef.current = null;
+        }
+        setError(t('review.approvalTimeout'));
+        setStatus('error');
+        return;
+      }
+
+      try {
+        const allowance = await fetchAllowance();
+        setCurrentAllowance(allowance);
+
+        if (allowance >= totalNeeded) {
+          // Approval confirmed on-chain!
+          if (pollTimerRef.current) {
+            clearInterval(pollTimerRef.current);
+            pollTimerRef.current = null;
+          }
+          setStatus('confirmed');
+          toast.success(t('toast.approvalSuccess'));
+        }
+      } catch {
+        // Ignore transient errors during polling
+      }
+    }, POLL_INTERVAL);
+  }, [fetchAllowance, totalNeeded, t]);
 
   // Approve (increaseAllowance)
   const handleApprove = useCallback(async () => {
@@ -204,9 +273,10 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
         network: networks.opnetTestnet,
       });
 
-      setCurrentAllowance(totalNeeded);
-      setStatus('confirmed');
-      toast.success(t('toast.approvalSuccess'));
+      // Approval broadcast — now wait for on-chain confirmation
+      setStatus('pending');
+      toast.info(t('toast.approvalBroadcast'));
+      startPolling();
     } catch (err) {
       console.error('Approval failed:', err);
       setError(
@@ -215,7 +285,7 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
       setStatus('error');
       toast.error(t('toast.approvalFailed'));
     }
-  }, [selectedToken, address, totalNeeded, currentAllowance, t]);
+  }, [selectedToken, address, totalNeeded, currentAllowance, startPolling, t]);
 
   // BTC mode: no approval needed
   if (sendMode === 'btc') {
@@ -256,7 +326,7 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
         </div>
       )}
 
-      {/* Approval confirmed */}
+      {/* Approval confirmed on-chain */}
       {status === 'confirmed' && (
         <div className="flex items-center justify-center gap-2 rounded-lg border border-[var(--color-success)]/30 bg-[var(--color-success)]/5 p-4">
           <Check className="h-4 w-4 text-[var(--color-success)]" />
@@ -277,7 +347,7 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
         </button>
       )}
 
-      {/* Approving in progress */}
+      {/* Approving — wallet signing in progress */}
       {status === 'approving' && (
         <button
           type="button"
@@ -287,6 +357,16 @@ export default function ApproveButton({ onStatusChange }: ApproveButtonProps) {
           <Loader2 className="h-4 w-4 animate-spin" />
           {t('review.approving')}
         </button>
+      )}
+
+      {/* Pending — approval broadcast, waiting for block confirmation */}
+      {status === 'pending' && (
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 p-4">
+          <Clock className="h-4 w-4 animate-pulse text-[var(--color-accent)]" />
+          <span className="text-sm text-[var(--color-accent)]">
+            {t('review.approvalPending')}
+          </span>
+        </div>
       )}
 
       {/* Error */}
