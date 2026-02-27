@@ -42,8 +42,8 @@ export function registerHistoryRoutes(app: HyperExpress.Server): void {
                 res.status(400).json({ error: 'total_amount is required as a string' });
                 return;
             }
-            if (!Array.isArray(body.tx_hashes) || body.tx_hashes.length === 0) {
-                res.status(400).json({ error: 'tx_hashes must be a non-empty array' });
+            if (!Array.isArray(body.tx_hashes)) {
+                res.status(400).json({ error: 'tx_hashes must be an array' });
                 return;
             }
             const validStatuses = ['completed', 'partial', 'failed'];
