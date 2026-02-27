@@ -176,8 +176,8 @@ export function useMultiSender() {
           ...results[i]!,
           status: 'confirmed',
           txHash:
-            typeof txResult === 'object' && txResult !== null && 'txHash' in txResult
-              ? String(txResult.txHash)
+            typeof txResult === 'object' && txResult !== null && 'transactionId' in txResult
+              ? String(txResult.transactionId)
               : null,
         };
       } catch (err) {
