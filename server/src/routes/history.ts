@@ -53,6 +53,33 @@ export function registerHistoryRoutes(app: HyperExpress.Server): void {
             }
 
             const db = getDb();
+            const txHashesJson = JSON.stringify(body.tx_hashes);
+
+            // Dedup: skip if the same tx_hashes already exist for this wallet
+            const existing = db
+                .prepare(
+                    `SELECT id FROM history WHERE wallet_address = ? AND tx_hashes = ?`,
+                )
+                .get(body.wallet_address, txHashesJson) as { id: number } | undefined;
+
+            if (existing) {
+                const record = db
+                    .prepare('SELECT * FROM history WHERE id = ?')
+                    .get(existing.id) as HistoryRecord;
+                res.status(200).json({
+                    id: record.id,
+                    wallet_address: record.wallet_address,
+                    token_address: record.token_address,
+                    token_symbol: record.token_symbol,
+                    recipient_count: record.recipient_count,
+                    total_amount: record.total_amount,
+                    tx_hashes: JSON.parse(record.tx_hashes) as string[],
+                    status: record.status,
+                    created_at: record.created_at,
+                });
+                return;
+            }
+
             const result = db
                 .prepare(
                     `INSERT INTO history (wallet_address, token_address, token_symbol, recipient_count, total_amount, tx_hashes, status)
@@ -64,7 +91,7 @@ export function registerHistoryRoutes(app: HyperExpress.Server): void {
                     body.token_symbol ?? null,
                     body.recipient_count,
                     body.total_amount,
-                    JSON.stringify(body.tx_hashes),
+                    txHashesJson,
                     body.status,
                 );
 

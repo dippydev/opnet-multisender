@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Wallet, Users, Send, Zap, Shield } from 'lucide-react';
 import { useStats } from '../hooks/useStats';
+import { useHistoryStore } from '../store/historyStore';
+import { useWalletStore } from '../store/walletStore';
 import bitsendFooterLogo from '../assets/bitsendfooter.svg';
 
 const fadeUp = {
@@ -31,7 +34,18 @@ function formatStat(n: number): string {
 
 export default function Landing() {
   const { t } = useTranslation();
-  const { stats, loading: statsLoading } = useStats();
+  const { stats, loading: statsLoading, refetch } = useStats();
+  const { address, isConnected } = useWalletStore();
+  const loadHistory = useHistoryStore((s) => s.loadHistory);
+
+  // When a wallet is connected, sync localStorage history to backend then refresh stats
+  useEffect(() => {
+    if (!isConnected || !address) return;
+    void loadHistory(address).then(() => {
+      // Small delay to let backend process the backfill POSTs
+      setTimeout(refetch, 500);
+    });
+  }, [isConnected, address, loadHistory, refetch]);
 
   const steps = [
     {

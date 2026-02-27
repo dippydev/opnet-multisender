@@ -150,6 +150,12 @@ export const useHistoryStore = create<HistoryState>((set) => ({
       const localEntries = loadFromStorage();
       const backendIds = new Set(backendEntries.map((e) => e.id));
       const localOnly = localEntries.filter((e) => !backendIds.has(e.id));
+
+      // Backfill: sync local-only entries to the backend so stats are accurate
+      for (const entry of localOnly) {
+        void saveToBackend(entry);
+      }
+
       const merged = [...localOnly, ...backendEntries].sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

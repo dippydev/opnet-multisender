@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config/constants';
 
 export interface PlatformStats {
@@ -13,14 +13,22 @@ const EMPTY_STATS: PlatformStats = {
   uniqueSenders: 0,
 };
 
-export function useStats(): { stats: PlatformStats; loading: boolean } {
+export function useStats(): {
+  stats: PlatformStats;
+  loading: boolean;
+  refetch: () => void;
+} {
   const [stats, setStats] = useState<PlatformStats>(EMPTY_STATS);
   const [loading, setLoading] = useState(true);
+  const [trigger, setTrigger] = useState(0);
+
+  const refetch = useCallback(() => setTrigger((n) => n + 1), []);
 
   useEffect(() => {
     let cancelled = false;
 
     async function fetchStats() {
+      setLoading(true);
       try {
         const res = await fetch(`${API_BASE_URL}/api/stats`);
         if (!res.ok) throw new Error('Failed to fetch stats');
@@ -39,7 +47,7 @@ export function useStats(): { stats: PlatformStats; loading: boolean } {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [trigger]);
 
-  return { stats, loading };
+  return { stats, loading, refetch };
 }

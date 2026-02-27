@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "type": "module",
     "description": "OPNet MultiSender deployment and admin scripts",
+    "bin": {
+        "opnet-wallet": "bin/opnet-wallet.mjs"
+    },
     "scripts": {
         "deploy": "npx tsx src/deploy.ts",
         "deploy:bob": "npx tsx src/deploy-bob.ts",
