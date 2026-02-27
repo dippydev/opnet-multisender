@@ -64,8 +64,6 @@ export function useIsOwner() {
         walletHex = '';
       }
 
-      console.log('[useIsOwner] ownerHex:', ownerHex, 'walletHex:', walletHex);
-
       setIsOwner(
         walletHex !== '' &&
           walletHex.toLowerCase() === ownerHex.toLowerCase(),
